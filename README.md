@@ -1,4 +1,4 @@
 PolyPassHash
 ============
 
-A Password hashing scheme that prevents cracking passwords individually.
+A Password hashing scheme that prevents an attacker from cracking passwords individually.
