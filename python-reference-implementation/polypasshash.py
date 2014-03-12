@@ -258,7 +258,6 @@ class PolyPassHash(object):
         if saltedpasswordhash[len(saltedpasswordhash)-self.partialbytes:] == entry['passhash'][len(entry['passhash'])-self.partialbytes:]:
           return True
         else:
-          #return False
           continue
 
       # XOR to remove the salted hash from the password
