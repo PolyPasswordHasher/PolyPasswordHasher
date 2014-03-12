@@ -1,0 +1,33 @@
+\section{Implementation}
+\label{sec-implementation}
+
+
+Our reference implementation for PolyPassHash is available with an MIT license 
+at \showurlx.  It utilizes
+a 16 byte salt, with SHA256 to compute password hashes.   The Shamir
+Secret Sharing routines
+utilize GF256 as the underlying field (encoding each byte as a separate
+share).   %The implementation of Shamir Secret Sharing was written while
+%referencing the open source Python {\tt tss} implementation, but was 
+%essentially rewritten to handle the interfaces needed by PolyPassHash.   
+The full code base for PolyPassHash is 203 lines of Python code and
+223 lines of C code\footnote{
+All line of code counts are according to SLOCcount~\cite{wheeler-sloccount}}.   
+PolyPassHash uses Python's standard hashlib for SHA256 and the PyCrypto
+implementation of AES.
+The GF256 operations, Lagrange interpolation, and polynomial math code
+are written in C for performance reasons.   All other code is written in 
+Python.  The main code for PolyPassHash, which handles account
+creation, accessing a persisted store, writing a store to disk,
+checking passwords, and similar operations, is 87 lines of Python code.
+Adding support for thresholdless accounts involved adding 20 lines of Python
+code.   Partial verification added 13 lines of Python code.
+The remaining Python is wrapper code for the C-based 
+Shamir Secret Sharing implementation.
+
+%\url{https://polypasshash.poly.edu/}.   
+%We release the code as open source 
+%under an MIT license.
+
+
+

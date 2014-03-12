@@ -1,0 +1,54 @@
+Full initialization time T 1 0.000380628108978
+Full initialization time T 2 0.000399389266968
+Full initialization time T 4 0.000408899784088
+Full initialization time T 8 0.000429229736328
+Full initialization time T 16 0.000467569828033
+Full initialization time T 32 0.000515730381012
+Full initialization time T 64 0.000664429664612
+Full initialization time T 128 0.000782339572906
+Full initialization time T 253 0.00113069057465
+Full account create time T 1 7.7178478241e-05 perf: 12956.980013
+Full account create time T 2 7.83491134644e-05 perf: 12763.386282
+Full account create time T 4 8.08620452881e-05 perf: 12366.741361
+Full account create time T 8 8.03589820862e-05 perf: 12444.1596202
+Full account create time T 16 8.40497016907e-05 perf: 11897.7221797
+Full account create time T 32 9.10997390747e-05 perf: 10976.9798482
+Full account create time T 64 0.000103528499603 perf: 9659.17601271
+Full account create time T 128 0.000125939846039 perf: 7940.29873351
+Full account (miss) check time T 1 5.81693649292e-05 perf: 17191.1796049
+Full account (miss) check time T 2 5.94305992126e-05 perf: 16826.3489389
+Full account (miss) check time T 4 6.15906715393e-05 perf: 16236.2249835
+Full account (miss) check time T 8 6.15811347961e-05 perf: 16238.7394014
+Full account (miss) check time T 16 6.46805763245e-05 perf: 15460.5919864
+Full account (miss) check time T 32 7.04216957092e-05 perf: 14200.1692792
+Full account (miss) check time T 64 8.29005241394e-05 perf: 12062.6499094
+Full account (miss) check time T 128 0.000107560157776 perf: 9297.12284435
+Full account (miss) check time T 253 0.000175709724426 perf: 5691.20464599
+Full account (correct) check time T 1 5.76901435852e-05 perf: 17333.9835517
+Full account (correct) check time T 2 6.02698326111e-05 perf: 16592.0487361
+Full account (correct) check time T 4 6.10208511353e-05 perf: 16387.8409002
+Full account (correct) check time T 8 6.19602203369e-05 perf: 16139.3874096
+Full account (correct) check time T 16 6.44588470459e-05 perf: 15513.774227
+Full account (correct) check time T 32 7.09390640259e-05 perf: 14096.6054984
+Full account (correct) check time T 64 8.30698013306e-05 perf: 12038.0689972
+Full account (correct) check time T 128 0.00010684967041 perf: 9358.94323456
+Full account (correct) check time T 253 0.000163369178772 perf: 6121.10563031
+Accessing a stored data store time T 1 0.000202178955078 perf: 4946.11320755
+Accessing a stored data store time T 2 0.000248193740845 perf: 8058.2209414
+Accessing a stored data store time T 4 0.000339984893799 perf: 11765.2286115
+Accessing a stored data store time T 5 0.000406980514526 perf: 12285.6004687
+Accessing a stored data store time T 6 0.000465869903564 perf: 12879.1320368
+Accessing a stored data store time T 7 0.000531196594238 perf: 13177.7953321
+Accessing a stored data store time T 8 0.000618934631348 perf: 12925.4360555
+Accessing a stored data store time T 9 0.000701904296875 perf: 12822.2608696
+Accessing a stored data store time T 10 0.000842094421387 perf: 11875.1528879
+Accessing a stored data store time T 11 0.000900030136108 perf: 12221.8129801
+Accessing a stored data store time T 12 0.00103497505188 perf: 11594.4823773
+Accessing a stored data store time T 13 0.00118207931519 perf: 10997.5699879
+Accessing a stored data store time T 14 0.00132203102112 perf: 10589.7666366
+Accessing a stored data store time T 15 0.00150108337402 perf: 9992.78271919
+Accessing a stored data store time T 16 0.00168108940125 perf: 9517.63778187
+Accessing a stored data store time T 32 0.00841903686523 perf: 3800.90983235
+Accessing a stored data store time T 64 0.0544469356537 perf: 1175.45641883
+Accessing a stored data store time T 128 0.398280143738 perf: 321.381826367
+Accessing a stored data store time T 253 2.87849593163 perf: 87.8931240515

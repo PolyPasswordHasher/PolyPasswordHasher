@@ -1,0 +1,141 @@
+\section{PolyHashing}
+\label{sec-polyhashing}
+
+PolyHashing leverages a salted secure hash function and a $(k,n)$ threshold 
+scheme to provide two main properties.   First, a hash can only be 
+verified if $k$ hash values are known.   Second, new hash values 
+specific schemes used are interchangeable, for concreteness, we will use
+SHA256 for the secure hash and Shamir Secret Sharing for the threshold scheme.
+
+\subsection{Salted SHA256}
+
+A secure hash function is one where (with high probability) each hash input
+produces a fixed size output where it is impractical to 1) find another
+value that produces the same output and 2) predict the input given an output.
+This is useful for situations like password checking because the secure
+hash of the password can be stored instead of the password.   If the password
+file is compromised, then the attacker must be able to find the input for that
+output.   
+
+However, in practice users choose a small number of passwords, allowing the
+easy construction of lookup tables with the hashes of common values (cite
+Rainbow tables).   To mitigate this problem, current password protection
+schemes also use a randomly generated value called a salt.   The salt is
+created at the time the account is generated and this value is included in
+the password when it is hashed.   In this way the same password will have 
+different hash values, because the salt will be different.
+
+
+\subsection{Shamir Secret Sharing}
+
+Shamir Secret Sharing\cite{shamir1979share} is an algorithm where a
+secret is divided into a set of $n$ shares are given out to different parties.  
+If a threshold $k$ (specified when the secret is divided) of those are 
+collected, the secret can be reconstructed.   To hide a secret, Shamir Secret 
+Sharing computes $k-1$ random coefficients for a polynomial $f(x)$ in
+a finite field (commonly GF-256 or GF-65536).   The $k$th term (commonly the
+constant term) contains the secret.  
+ To compute a share, a value between 1
+and the order of the field is chosen.   The polynomial is evaluated with
+with $x$ equal to the share value.   The terms $x$ and $f(x)$ are used as the
+share.   To reconstruct the secret from at least $k$ shares, a party can
+interpolate the values to find the constant term (i.e. the secret).   In
+practice, for computational efficiency interpolation is often optimized so 
+that {\bf only} the constant term is recovered.
+
+In many cases, PolyHashing requires the ability to generate additional shares
+after the original share creation.   For this to work, PolyHashing requires 
+full interpolation of the secret during reconstruction instead of simply
+computing the last term.   This makes initialization more computationally
+complex, but possible (and efficient) to generate additional shares after this.
+
+
+
+
+
+\subsection{Intuition}
+
+To explain how a password is validated, we first consider the case when
+the server already has the threshold of passwords.   This threshold of
+passwords allows the server to compute a (private) hyper-plane in a high 
+dimensional space.   When a client provides their password, the server performs
+a process (described below) to compute a point in the high dimensional space.
+If that point lies on the hyper-plane, then the password is valid and the
+user can log in.  
+
+To obtain the initial threshold of passwords, administrators can enter their
+passwords manually when restarting the service.   (Alternatively, for a 
+popular service like gmail or Facebook, the normal flow of user requests
+may provide a large number of logins in a short period of time.)   When
+sufficiently many points are obtained (discussed below), the server can 
+compute the hyper-plane and then use the fast process to authenticate
+users.   
+
+\subsection{What Is Stored}
+
+The server stores a file (or database) that contains records of the form:
+<username, salt, (point XOR secure hash)>.   As may be expected, the username 
+is the user's login.   The salt is the salt of the secure hash and is stored
+separately because the XOR with the point would obscure the value.   The
+secure hash is XORed with the point value in the hyper-plane.  
+
+Note that the hyper-plane itself is private and is not stored on disk.   
+
+
+\subsection{Checking A Password}
+
+The server computes the salted secure hash of the user's password and
+XORs it with the point XOR secure hash to obtain the point.   If the
+point lies within the hyper-plane, the password is correct.   
+
+Note that some users (namely administrators who may want to bootstrap
+the system) can have multiple records with the same username.   In this
+case, the same password is securely hashed and used with all points.
+\cappos{Is this a weakness?   Suppose there was no salt, does the XOR of 
+randomly chosen points in a hyper-plane leak information about it?   
+I'm fairly convinced that with a salt, this isn't a major risk.}
+
+\subsection{Creating An Account}
+
+Creating a record involves creating two elements.   First, the server 
+creates a traditional salted hash for the password.   Second, 
+a random point in the hyper-plane is also generated.    The salt is used
+as the second field of the record.   The hash and point are XORed and stored
+in the third field.
+
+The server has an extremely low probability of randomly choosing the same
+point twice.   However, if this does occur, the only penalty is that the
+server cannot count both points towards the initial threshold.   Both
+passwords can be validated independently and there are no other problems
+with this scheme.
+
+
+
+\subsection{Solving For The Hyper-Plane}
+
+To get the hyper-plane, the server takes a series of logins that have more than
+the threshold number of entries.   In fact, the server can (and should) check
+more than the threshold number of points to validate the hyper-plane is
+correct.   
+
+If some of the passwords are incorrect, those points will not lie on the 
+hyper-plane.   For the initial set of passwords, the server may not
+yet know the hyper-plane and so may need to deduce which are incorrect.
+\cappos{Not sure how efficient this is, but solving this is obviously known.
+Should we use Goldberg's computation for robust PIR?   Is this the same
+problem?}
+
+\subsection{Handling A Huge Number of Known Passwords}
+
+If the number of potentially compromised user accounts is large, then
+an attacker may be able to obtain a sufficient number of passwords to 
+compute the hyper-plane.   This can be handled by creating multiple
+password hash files each with its own hyper-plane.   From a usability
+perspective, the administrator account(s) can represent sufficient
+points to define the hyper-plane in each file.   However, the user accounts
+can be bounded to a fixed amount.
+
+\cappos{It seems possible to ``migrate'' passwords from one hyper-plane
+to the next if both hyper-planes are known.   Do I want to discuss this?
+It seems like a distraction.}
+

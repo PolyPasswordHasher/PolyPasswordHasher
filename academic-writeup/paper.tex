@@ -1,0 +1,213 @@
+\documentclass[letterpaper,twocolumn,10pt]{article}
+\usepackage{usenix,epsfig,endnotes}
+\usepackage[hyphens]{url}
+\usepackage[usenames,dvipsnames]{color}
+\usepackage{comment}
+\usepackage{float}
+\usepackage{subfig}
+\usepackage{amsmath}
+\usepackage{lipsum}
+\usepackage{pifont} %used for tickmark and crosses.
+\usepackage[english]{babel}
+\usepackage{array}
+\usepackage{multirow}
+\usepackage{amssymb}
+\usepackage{amsthm}
+\usepackage{amsmath}
+\usepackage[normalem]{ulem}
+\usepackage{xspace}
+\usepackage{datetime}
+
+%%%%%%%%%% verbatim related
+\usepackage{fancyvrb}
+\usepackage{fixltx2e}
+\fvset{framesep=2mm,fontsize=\scriptsize,framerule=.1mm,numbersep=1mm,commandchars=\\\{\}}
+\usepackage{listings}
+% \usepackage{tgcursor}
+
+%%%%%%%%%%%%%%%%%%%% pseudocode-related stuff
+\usepackage[usenames,dvipsnames]{xcolor}
+\newcommand{\codecomment}[1]{\textcolor[rgb]{0.133,0.445,0.133}{#1}}
+\usepackage{algorithm}
+\usepackage[noend]{algpseudocode}
+% \usepackage{algorithmic}
+\newfloat{algorithm}{t}{lop}
+% change indentation!!
+\setlength\fboxsep{0pt}
+\renewcommand\algorithmicindent{1em}
+%\newcommand{\INDSTATE}[1][1]{\State\hspace{#1\algorithmicindent}}
+% \newcommand{\INDSTATE}[1][1]{\State\hspace{2em}}
+%%%%%%%%%%%%%%%%%%%%
+
+% float control
+\renewcommand{\topfraction}{0.9}
+
+\usepackage[small,compact]{titlesec}
+
+% \usepackage{savetrees}
+
+%%%%%%%%%%%%%%%%%%%%
+
+\newtheorem{mydef}{Definition}
+\newtheorem{theorem}{Theorem}[section]
+\newsavebox{\verbbox}
+% \usepackage[stable]{footmisc}
+
+\newif\ifrev
+
+\hyphenation{WEB-rick}
+
+%%%%%%%%%%%%%%%%%%
+\usepackage{hyperref}
+
+\hypersetup{%
+%  pdftitle = {NetCheck: Network Diagnoses from Blackbox Traces},
+  pdftitle = {PolyPassHash: Protecting Passwords In The Event Of A Password 
+File Disclosure},
+  pdfkeywords = {},
+  pdfauthor = { Justin Cappos},
+%  pdfauthor = { Names removed for anonymous submission},
+  bookmarksnumbered,
+  bookmarksopen=true,
+  colorlinks=true,
+  urlcolor=[rgb]{.35,0,0},
+  linkcolor=[rgb]{.35,0,0},
+  citecolor=[rgb]{.35,0,0},
+  pdfstartview={FitH},
+}
+
+
+%%%%%%%%%%%%%%%%%%
+% COMMENT OUT NEXT LINE TO HIDE TODOs
+%\revtrue
+%%%%%%%%%%%%%%%%%%
+
+\ifrev
+  \newcommand{\directions}[1]{{#1}}
+  \newcommand{\yanyan}[1]{{\color{blue} [Yanyan: #1]}}
+  \newcommand{\cappos}[1]{{\color{red} [Justin: #1]}}
+  \newcommand{\ivan}[1]{{\color{cyan} [Ivan: #1]}}
+  \newcommand{\todo}[1]{{\color{red} [todo: #1]}}
+\else
+  \newcommand{\yanyan}[1]{}
+  \newcommand{\cappos}[1]{}
+  \newcommand{\ivan}[1]{}
+  \newcommand{\todo}[1]{}
+\fi
+
+\newcommand{\eat}[1]{}
+\newcolumntype{m}[1]{>{\centering\arraybackslash\hspace{0pt}}p{#1}}
+\newcommand{\bigO}[1]{\ensuremath{\operatorname{O}\bigl(#1\bigr)}}
+\newcommand\vit[1]{\textit{#1}}
+% \renewcommand{\theFancyVerbLine}{\textsuperscript{\arabic{FancyVerbLine}}}
+% big-O notation/symbol
+
+\newcommand{\sysname}{NetCheck\xspace}
+\newcommand{\mysup}[1]{\textsubscript{#1}}
+\newcommand{\order}{\textit{OrderingAlg}\xspace}
+\newcommand{\Order}{\textit{Trace-ordering}\xspace}
+
+\newcommand{\model}{network model\xspace}
+\newcommand{\Model}{Network model\xspace}
+
+\newcommand{\class}{diagnoses engine\xspace}
+\newcommand{\Class}{Diagnoses engine\xspace}
+
+
+\newenvironment{myquote}{\list{}{\leftmargin=0in\rightmargin=0in}\item[]}{
+\endlist}
+
+\makeatletter
+\newcommand\xleftrightarrow[2][]{%
+  \ext@arrow 9999{\longleftrightarrowfill@}{#1}{#2}}
+\newcommand\longleftrightarrowfill@{%
+  \arrowfill@\leftarrow\relbar\rightarrow}
+\makeatother
+
+\renewcommand{\labelenumi}{\roman{enumi}}
+\newcounter{mycounter}  
+\newenvironment{noindlist}
+ {\begin{list}{\textit{\arabic{mycounter})}~}{\usecounter{mycounter}
+\labelsep=0em
+\labelwidth=0em \leftmargin=0em \itemindent=1em \itemsep=-0.2em }}
+ {\end{list}}
+
+\newcommand{\squishlist}{%
+   \begin{list}{$\bullet$}
+    { \setlength{\itemsep}{0pt}      \setlength{\parsep}{3pt}
+      \setlength{\topsep}{3pt}       \setlength{\partopsep}{0pt}
+      \setlength{\leftmargin}{1.5em} \setlength{\labelwidth}{1em}
+      \setlength{\labelsep}{0.5em} } }
+
+\newcommand{\squishend}{%
+    \end{list}  }
+
+\newcommand{\tickmark}{\ding{51}}
+\newcommand{\xmark}{\ding{55}}
+
+\newcommand*\samethanks[1][\value{footnote}]{\footnotemark[#1]}
+
+\begin{document}
+
+\date{}
+
+\title{PolyPassHash: Protecting Passwords In The Event Of A Password File 
+Disclosure}
+
+
+% enable this to de-anonymize!
+\newcommand{\showurlx}{{\url{https://polypasshash.poly.edu}}}
+%\newcommand{\showurlx}{[redacted]}
+
+\author{
+{\rm Justin Cappos}\\
+New York University\\
+jcappos@nyu.edu
+%Author names removed for anonymous submission
+% copy the following lines to add more authors
+% \and
+% {\rm Name}\\
+%Name Institution
+} 
+
+\maketitle
+
+% Use the following at camera-ready time to suppress page numbers.
+% Comment it out when you first submit the paper for review.
+\thispagestyle{empty}
+
+\input{abstract}
+\input{introduction}
+
+\input{threatmodel}
+
+\input{background}
+
+\input{polyhashing}
+
+\input{polypasshash}
+
+\input{extensions}
+
+\input{expecteduse}
+
+\input{implementation}
+
+\input{results}
+
+\input{related}
+
+%\input{discussion}
+
+\input{conclusion}
+
+
+
+
+\dmyyyydate
+{\footnotesize \bibliographystyle{acm}
+\bibliography{bibdata}}
+
+% \theendnotes
+
+\end{document}

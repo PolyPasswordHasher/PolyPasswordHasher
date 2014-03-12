@@ -1,0 +1,53 @@
+\section{Threat Model}
+\label{sec-threatmodel}
+
+Suppose that a server wants to validate passwords for user accounts.   
+%registering an account, the user and server will agree on a salted 
+%will register an account  provide the server with a salted hash of 
+%the password.   
+%Note that it is irrelevant which party generates the sal(In practice this is more commonly done on the server side, but 
+%the salt generation and hash can be performed by either party.)
+We assume that:
+
+\begin{itemize}
+
+\item An attacker can read all data that is persisted on disk including
+the password file.
+
+\item The server can fail and need to be restarted by administrators.   All
+state that is kept in memory is lost at this point.   The server must
+restart using only the (attacker visible) data from disk.   (While the basic
+technique needs a threshold of correct passwords to perform verification, 
+Section~\ref{sec-partial} discusses an extension to immediately verify
+passwords upon restart.)
+
+\item The attacker can have a priori knowledge of the correct
+passwords for some number of user accounts.   We assume
+that the administrator has configured the threshold to be larger than this
+value.   (Note that a technique to have protected user accounts that
+do not count toward the threshold is described in 
+Section~\ref{sec-thresholdless}.)
+
+\item 
+The attacker {\bf cannot} read arbitrary memory for all processes on the 
+server.  
+If an attacker can read arbitrary memory, then the attacker can observe
+the plain-text passwords as they are entered and so any form of secure password
+storage can be bypassed.
+
+The attacker cannot read arbitrary memory in many types of reported attacks
+including compromises of password file data stored on 
+backup media, web server misconfiguration, or information obtained through SQL 
+injection attacks --- the primary vector for password file 
+compromises~\cite{passwordresearchblog, miranteTR13}.
+
+\item
+Even if these guarantees are not met, the goal is to still retain
+strong security.   Regardless of the attacker's knowledge, the protections
+provided in this work must never be worse than the best practices used today 
+(salted hashes of passwords).
+
+\end{itemize}
+
+Limitations and strengths of alternative solutions that take this threat 
+model into account are discussed in Section~\ref{sec-expecteduse}.
