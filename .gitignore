@@ -5,3 +5,5 @@
 *.blg
 *.dvi
 *.out
+*.pyc
+build
