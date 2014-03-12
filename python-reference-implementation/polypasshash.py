@@ -258,7 +258,8 @@ class PolyPassHash(object):
         if saltedpasswordhash[len(saltedpasswordhash)-self.partialbytes:] == entry['passhash'][len(entry['passhash'])-self.partialbytes:]:
           return True
         else:
-          return False
+          #return False
+          continue
 
       # XOR to remove the salted hash from the password
       sharedata = _do_bytearray_XOR(saltedpasswordhash, entry['passhash'][:len(entry['passhash'])-self.partialbytes])
@@ -278,6 +279,9 @@ class PolyPassHash(object):
 
       # If a normal share, return T/F depending on if this share is valid.
       return self.shamirsecretobj.is_valid_share(share)
+    
+    # if This cannot be verified in any way, we will fail-closed
+    return False
       
 
 
