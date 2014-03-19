@@ -45,5 +45,5 @@ The basic technique described here would require some number of users to provide
 
 Extremely weak passwords are a bad idea.   An attacker can guess things like password, etc. and just try them even if they do not have the database.   So do not use them regardless of the storage technology.
 
-Another thing PolyPassHash does not protect against is password reuse.   Do not use the same password on multiple sites no matter how strong it is!   We recommend using a [password](lastpass.com) [manager](https://agilebits.com/onepassword) that generates a separate, strong password per site.
+Another thing PolyPassHash does not protect against is password reuse.   Do not use the same password on multiple sites no matter how strong it is!   We recommend using a [password](https://lastpass.com) [manager](https://agilebits.com/onepassword) that generates a separate, strong password per site.
 
