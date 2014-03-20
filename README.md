@@ -20,7 +20,7 @@ FAQ
 <a name="hardtocompute"/>
 #### "How hard is it to crack passwords stored using this technique?"
 
-Suppose that three people have random passwords that are each randomly chosen and 6 characters long.   A typical laptop can crack those passwords in about 1 hour.   
+Suppose that three people have passwords that are each randomly chosen and 6 characters long.   A typical laptop can crack those passwords in about 1 hour.   
 
 If you take the same passwords and protect them with PolyPassHash, every computer on the planet working together cannot crack the password in 1 hour.   In fact, to search the key space, it would take every computer on the planet [longer than the universe is estimated to have existed](https://github.com/JustinCappos/PolyPassHash/blob/master/academic-writeup/paper.pdf).
 
