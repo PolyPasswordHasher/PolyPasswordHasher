@@ -64,4 +64,4 @@ Please contact us if you have an implementation of PolyPassHash that you would l
 <a name="moreinfo"/>
 #### "How do I get more information about PolyPassHash?"
 
-[Our paper](https://github.com/JustinCappos/PolyPassHash/blob/master/academic-writeup/paper.pdf) should be a good starting point.   If you have a question that is not covered there, feel free to email me (jcappos@nyu.edu) and ask.
+[Our paper](https://github.com/JustinCappos/PolyPassHash/blob/master/academic-writeup/paper.pdf) should be a good starting point.   If you have a question that is not covered there, feel free to email (jcappos@nyu.edu) and ask.
