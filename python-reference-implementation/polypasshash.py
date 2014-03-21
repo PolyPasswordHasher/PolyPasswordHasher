@@ -65,7 +65,6 @@
   pph.create_account('larry','fish',0)
   ...
 
-# TODO NEED TO TEST PARTIAL VERIFICATION
 
 """
 
@@ -281,8 +280,6 @@ class PolyPassHash(object):
       
 
 
-# TODO: Write and read partial verification byte data!!!!
-# occurs!
   def write_password_data(self, passwordfile):
     """ Persist the password data to disk."""
     if self.threshold >= self.nextavailableshare:
@@ -292,8 +289,6 @@ class PolyPassHash(object):
     open(passwordfile,'w').write(pickle.dumps(self.accountdict))
       
 
-# TODO: Check the hashes for provided password data when partial verification
-# occurs!
   def unlock_password_data(self, logindata): 
     """Pass this a list of username, password tuples like: [('admin',
        'correct horse'), ('root','battery staple'), ('bob','puppy')]) and
