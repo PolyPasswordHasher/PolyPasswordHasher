@@ -174,10 +174,19 @@ lucks1998open, jablon1997extended}, and further
 enhancements~\cite{wang2005strengthening}.   These 
 systems allow parties that
 share a password to securely find an encryption key to hide communications.   
-These systems provide excellent protections and can handle compromises
+These systems provide excellent protection and can handle compromises
 of the memory of systems in some cases.   However, unlike PolyPassHash, they 
 typically involve multi-round authentication and require changes to both the 
-client and server.
+client and server.   
+
+% JAC: Too much detail.
+%
+% Using this scheme with thresholdless accounts is trivial and follows the
+% same pattern as 5.2.2.   These schemes can be used with threshold accounts
+% by having the server and client choose a random string the length of a
+% shamir secret share.   The server stores the share XOR this string.
+% After authentication, the client sends this string to the server and the
+% server can recover the share.
 
 
 {\bf Helping Users Choose Stronger Passwords.}
