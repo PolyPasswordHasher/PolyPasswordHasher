@@ -67,7 +67,8 @@ the threshold cryptosystem should be equal to the length of the hashes.
 To add a secret to the store (the top of Figure~\ref{fig-polyhashing}), one 
 will compute an index $i$ (to 
 later locate which secret in the store corresponds to this entry) and
-the hash of the data.   The value $i$ is also used as the 
+the hash of the data.   The share value can be stored in the table, or
+alternatively $i$ can also be used as the 
 share number in the Shamir Secret Store for computing the $f(x)$ values of the
 shares.   To store an item, the party will add an entry that includes the 
 identifier, share number, and the XOR of the $f(x)$ values 
