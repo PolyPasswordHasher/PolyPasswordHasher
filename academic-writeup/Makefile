@@ -9,6 +9,7 @@ pdf-missing-graphics: $(PAPER).pdf-without-pdflatex
 dvi: $(PAPER).dvi
 
 SECTIONS = \
+	acknowledgements.tex \
 	abstract.tex \
 	polyhashing.tex \
 	polypasshash.tex \
