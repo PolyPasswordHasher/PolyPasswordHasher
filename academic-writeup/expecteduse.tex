@@ -35,6 +35,8 @@ like cloud computing or even just a standard master / slave deployment.
 On the other hand, PolyPassHash is entirely software based and a backup system
 can be brought online in the same way that a normal server boots.
 
+
+
 {\bf How does an attacker that can read arbitrary memory on the 
 authentication server impact PolyPassHash?}
 
@@ -48,6 +50,12 @@ neither PolyPassHash nor techniques like hardware key storage
 are significantly helpful in this situation.
 %protect against situations where the attacker has administrator access on a 
 %running authentication system.
+
+Furthermore, new processor extensions such as Intel 
+SGX~\cite{mckeen2013innovative} expressly provide protections to select 
+portions of user space code so that even a root user, hypervisor, or the 
+operating system kernel cannot read it.   Servers running PolyPassHash can 
+leverage these extensions to protect the Shamir Secret Store.
 
 However, if an attacker can read
 arbitrary memory, the attacker can gain access to plaintext passwords
