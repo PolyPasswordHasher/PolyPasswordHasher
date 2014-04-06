@@ -71,6 +71,13 @@ unless they can recover the AES key by knowing a threshold of
 administrator passwords.
 
 
+If desired by an administrator, accounts can be switched between thresholdless
+and threshold without user intervention.
+In both the case of threshold and thresholdless accounts, a server with
+a threshold of shares knows the information necessary to recover the salted 
+secure hash.   This salted secure hash can then be re-encoded in the 
+alternative manner and the new entry can be stored.
+
 \subsubsection{Handling Alternative Authentication Mechanisms}
 
 Passwords are not the only mechanism for logging into modern systems.   For
