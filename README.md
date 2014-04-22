@@ -60,7 +60,7 @@ Any secure hashing algorithm can be used with PolyPassHash.   The [Python refere
 <a name="implementation"/>
 #### "Where can I get an implementation of PolyPassHash?"
 
-This repository, contains the [PolyPassHash Python reference implementation](https://github.com/PolyPassHash/PolyPassHash-Python).   This is written for readability and not performance or practical use.   There are also a [C implementation](https://github.com/PolyPassHash/PolyPassHash-C) and a [Ruby implementation](https://github.com/PolyPassHash/PolyPassHash-Ruby) available.
+For a readable implementation, check out the [PolyPassHash Python reference implementation](https://github.com/PolyPassHash/PolyPassHash-Python).   This is written for readability and not performance or practical use.   There are also a [C implementation](https://github.com/PolyPassHash/PolyPassHash-C) and a [Ruby implementation](https://github.com/PolyPassHash/PolyPassHash-Ruby) available.
 
 We would love to see a PHP implementation for common frameworks because many password hash breaches [occur on these systems](http://blog.passwordresearch.com/2013/02/passwords-found-in-wild-for-january-2013.html).
 
