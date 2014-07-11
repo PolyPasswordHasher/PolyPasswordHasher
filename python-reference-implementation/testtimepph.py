@@ -1,4 +1,4 @@
-import polypasshash
+import polypasswordhasher
 
 import time
 import sys
@@ -10,14 +10,14 @@ THRESHOLD = int(sys.argv[1])
 count = 100
 starttime= time.time()
 for num in range(count):
-  pph = polypasshash.PolyPassHash(threshold = THRESHOLD, passwordfile = None)
+  pph = polypasswordhasher.PolyPasswordHasher(threshold = THRESHOLD, passwordfile = None)
 
 print "Full initialization time: "+str((time.time()-starttime)/count)
 
 
 # require knowledge of 10 shares to decode others.   Create a blank, new
 # password file...
-pph = polypasshash.PolyPassHash(threshold = THRESHOLD, passwordfile = None)
+pph = polypasswordhasher.PolyPasswordHasher(threshold = THRESHOLD, passwordfile = None)
 
 # create three admins so that any two have the appropriate threshold
 pph.create_account('admin','correct horse',THRESHOLD/2)
@@ -57,7 +57,7 @@ pph.write_password_data('securepasswords')
 pph = None
 
 # let's load it back in
-pph = polypasshash.PolyPassHash(threshold = THRESHOLD,passwordfile = 'securepasswords')
+pph = polypasswordhasher.PolyPasswordHasher(threshold = THRESHOLD,passwordfile = 'securepasswords')
 
 # The password information is essentially useless alone.   You cannot know
 # if a password is valid without threshold or more other passwords!!!

@@ -17,7 +17,7 @@ Purpose:
 
   This is just a proof-of-concept!!!
   
-  To be used as a library for a project I'm calling PolyPassHash.
+  To be used as a library for a project I'm calling PolyPasswordHasher.
 
 
 Example:
@@ -65,7 +65,7 @@ __all__ = ['ShamirSecret']
 
 class ShamirSecret(object):
   """ This performs Shamir Secret Sharing operations in an incremental way
-      that is useful for PolyPassHash.  It allows checking membership, genering
+      that is useful for PolyPasswordHasher.  It allows checking membership, genering
       shares one at a time, etc.   """
 
   def __init__(self, threshold, secretdata=None):

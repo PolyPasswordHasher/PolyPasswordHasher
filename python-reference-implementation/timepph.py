@@ -1,4 +1,4 @@
-import polypasshash
+import polypasswordhasher
 
 import time
 import sys
@@ -11,7 +11,7 @@ for THRESHOLD in [1,2,4,8,16,32,64,128,253]:
   count = 100
   starttime= time.time()
   for num in range(count):
-    pph = polypasshash.PolyPassHash(threshold = THRESHOLD, passwordfile = None)
+    pph = polypasswordhasher.PolyPasswordHasher(threshold = THRESHOLD, passwordfile = None)
   endtime = time.time()
 
   print "Full initialization time T "+str(THRESHOLD)+" "+str((endtime-starttime)/count)
@@ -21,7 +21,7 @@ for THRESHOLD in [1,2,4,8,16,32,64,128,253]:
 
 for THRESHOLD in [1,2,4,8,16,32,64,128,253]:
 
-  pph = polypasshash.PolyPassHash(threshold = THRESHOLD, passwordfile = None)
+  pph = polypasswordhasher.PolyPasswordHasher(threshold = THRESHOLD, passwordfile = None)
 
   # create three admins so that any two have the appropriate threshold
   pph.create_account('admin','correct horse',THRESHOLD/2)
@@ -46,7 +46,7 @@ for THRESHOLD in [1,2,4,8,16,32,64,128,253]:
 
 for THRESHOLD in [1,2,4,8,16,32,64,128,253]:
 
-  pph = polypasshash.PolyPassHash(threshold = THRESHOLD, passwordfile = None)
+  pph = polypasswordhasher.PolyPasswordHasher(threshold = THRESHOLD, passwordfile = None)
 
   # create three admins so that any two have the appropriate threshold
   pph.create_account('admin','correct horse',THRESHOLD)
@@ -75,7 +75,7 @@ for THRESHOLD in [1,2,4,8,16,32,64,128,253]:
 
 for THRESHOLD in [1,2,4,8,16,32,64,128,253]:
 
-  pph = polypasshash.PolyPassHash(threshold = THRESHOLD, passwordfile = None)
+  pph = polypasswordhasher.PolyPasswordHasher(threshold = THRESHOLD, passwordfile = None)
 
   # create three admins so that any two have the appropriate threshold
   pph.create_account('admin','correct horse',THRESHOLD)
@@ -95,7 +95,7 @@ for THRESHOLD in [1,2,4,8,16,32,64,128,253]:
 
 for THRESHOLD in [1,2,4,8,16,32,64,128,253]:
 
-  pph = polypasshash.PolyPassHash(threshold = THRESHOLD, passwordfile = None)
+  pph = polypasswordhasher.PolyPasswordHasher(threshold = THRESHOLD, passwordfile = None)
 
   # create three admins so that any two have the appropriate threshold
   pph.create_account('admin','correct horse',THRESHOLD)
@@ -115,7 +115,7 @@ for THRESHOLD in [1,2,4,8,16,32,64,128,253]:
 
 for THRESHOLD in [1,2,4,8,16,32,64,128,253]:
 
-  pph = polypasshash.PolyPassHash(threshold = THRESHOLD, passwordfile = None)
+  pph = polypasswordhasher.PolyPasswordHasher(threshold = THRESHOLD, passwordfile = None)
 
   # create three admins so that any two have the appropriate threshold
   pph.create_account('admin','correct horse',THRESHOLD)
@@ -138,7 +138,7 @@ for THRESHOLD in [1,2,4,8,16,32,64,128,253]:
 #for THRESHOLD in [1,2,4,5,6,7,8,9,10,11,12,13,14,15,16,32,64,128,253]:
 for THRESHOLD in [1,2,4,8,16,32,64,128,253]:
 
-  pph = polypasshash.PolyPassHash(threshold = THRESHOLD, passwordfile = None)
+  pph = polypasswordhasher.PolyPasswordHasher(threshold = THRESHOLD, passwordfile = None)
 
   # create three admins so that any two have the appropriate threshold
   pph.create_account('admin','correct horse',THRESHOLD)
@@ -151,7 +151,7 @@ for THRESHOLD in [1,2,4,8,16,32,64,128,253]:
   pph = None
 
   # let's load it back in
-  pph = polypasshash.PolyPassHash(threshold = THRESHOLD,passwordfile = 'securepasswords')
+  pph = polypasswordhasher.PolyPasswordHasher(threshold = THRESHOLD,passwordfile = 'securepasswords')
 
   # The password information is essentially useless alone.   You cannot know
   # if a password is valid without threshold or more other passwords!!!

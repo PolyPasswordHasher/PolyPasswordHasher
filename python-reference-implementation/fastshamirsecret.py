@@ -19,7 +19,7 @@ Purpose:
 
   This is just a proof-of-concept!!!
   
-  To be used as a library for a project I'm calling PolyPassHash.
+  To be used as a library for a project I'm calling PolyPasswordHasher.
 
 
 Example:
@@ -82,9 +82,9 @@ def f(x, coefficients):
 
 
 class ShamirSecret(object):
-  """ This performs Shamir Secret Sharing operations in an incremental way
-      that is useful for PolyPassHash.  It allows checking membership, genering
-      shares one at a time, etc.   """
+  """ This performs Shamir Secret Sharing operations in an incremental way that
+  is useful for PolyPasswordHasher.  It allows checking membership, generating
+  shares one at a time, etc.   """
 
   def __init__(self, threshold, secretdata=None):
     """Creates an object.   One must provide the threshold.   If you want
@@ -153,7 +153,8 @@ class ShamirSecret(object):
       raise TypeError("In compute_share, x is of incorrect type: "+str(type(x)))
 
     if x<=0 or x>=256:
-      raise ValueError("In compute_share, x must be between 1 and 255, not: "+str(x))
+      raise ValueError("In compute_share, x must be between 1 and 255, not: "+
+              str(x))
 
     if self._coefficients is None:
       raise ValueError("Must initialize coefficients before computing a share")
@@ -185,17 +186,20 @@ class ShamirSecret(object):
 
 
     if self.threshold > len(shares):
-      raise ValueError("Threshold:"+str(self.threshold)+" is smaller than the number of unique shares:"+str(len(shares))+".")
+      raise ValueError("Threshold:"+str(self.threshold)+
+        " is smaller than the number of unique shares:"+str(len(shares))+".")
 
     if self.secretdata is not None:
-      raise ValueError("Recovering secretdata when some is stored.   Use check_share instead.")
+      raise ValueError("Recovering secretdata when some is stored. Use check_share instead.")
 
     # the first byte of each share is the 'x'.
     xs = []
     for share in shares:
       # the first byte should be unique...
       if share[0] in xs:
-        raise ValueError("Different shares with the same first byte! '"+str(share[0])+"'")
+        raise ValueError("Different shares with the same first byte! '"+
+                str(share[0])+"'")
+
       # ...and all should be the same length
       if len(share[1])!=len(shares[0][1]):
         raise ValueError("Shares have different lengths!")

@@ -4,7 +4,7 @@ import shamirsecret
 
 # first check some of the math...
 assert(shamirsecret._multiply_polynomials([1,3,4],[4,5]) == [4,9,31,20])
-assert(shamirsecret.full_lagrange([2,4,5],[14,30,32]) == [43, 168, 150])
+assert(shamirsecret._full_lagrange([2,4,5],[14,30,32]) == [43, 168, 150])
 
 s = shamirsecret.ShamirSecret(2,'hello')
 a=s.compute_share(1)

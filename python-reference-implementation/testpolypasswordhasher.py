@@ -1,10 +1,10 @@
-import polypasshash
+import polypasswordhasher
 
 import sys
 THRESHOLD = 10
 # require knowledge of 10 shares to decode others.   Create a blank, new
 # password file...
-pph = polypasshash.PolyPassHash(threshold = THRESHOLD, passwordfile = None)
+pph = polypasswordhasher.PolyPasswordHasher(threshold = THRESHOLD, passwordfile = None)
 
 # create three admins so that any two have the appropriate threshold
 pph.create_account('admin','correct horse',THRESHOLD/2)
@@ -38,7 +38,7 @@ pph.write_password_data('securepasswords')
 pph = None
 
 # let's load it back in
-pph = polypasshash.PolyPassHash(threshold = THRESHOLD,passwordfile = 'securepasswords')
+pph = polypasswordhasher.PolyPasswordHasher(threshold = THRESHOLD,passwordfile = 'securepasswords')
 
 # The password information is essentially useless alone.   You cannot know
 # if a password is valid without threshold or more other passwords!!!
@@ -64,7 +64,7 @@ pph.create_account('larry','fish',0)
 
 # require knowledge of 10 shares to decode others.   Create a blank, new
 # password file...
-pph = polypasshash.PolyPassHash(threshold = THRESHOLD, passwordfile = None, partialbytes = 2)
+pph = polypasswordhasher.PolyPasswordHasher(threshold = THRESHOLD, passwordfile = None, partialbytes = 2)
 
 # create three admins so that any two have the appropriate threshold
 pph.create_account('admin','correct horse',THRESHOLD/2)
@@ -97,7 +97,7 @@ pph = None
 
 
 # let's load it back in
-pph = polypasshash.PolyPassHash(threshold = THRESHOLD,passwordfile = 'securepasswords', partialbytes=2)
+pph = polypasswordhasher.PolyPasswordHasher(threshold = THRESHOLD,passwordfile = 'securepasswords', partialbytes=2)
 
 
 # The password threshold info should be useful now...

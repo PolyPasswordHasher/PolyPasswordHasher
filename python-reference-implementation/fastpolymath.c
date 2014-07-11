@@ -6,7 +6,7 @@
   Apr 1st, 2013
 
 <Description>
-  A wrapper for fast C operations for polynomial math for PolyPassHash.
+  A wrapper for fast C operations for polynomial math for PolyPasswordHasher.
   Specifically, I have two external interfaces: computing f(x) and
   doing full Lagrange interpolation.   I do this for polynomials in GF256
   using x^8 + x^4 + x^3 + x + 1 as multiplication and XOR for addition.   
@@ -299,7 +299,8 @@ static PyObject *full_lagrange(PyObject *module, PyObject *args) {
 
 
 
-static void _multiply_polynomial_by_2terms_inplace(gf256 *dest,int length,gf256 terms[2]) {
+static void _multiply_polynomial_by_2terms_inplace(gf256 *dest,int length,
+        gf256 terms[2]) {
 
   int i;
   // I need a buffer to keep the temp data and don't want to malloc / free.
@@ -327,7 +328,8 @@ static void _multiply_polynomial_by_2terms_inplace(gf256 *dest,int length,gf256 
 
 }
 
-static void _multiply_polynomial_by_1term_inplace(gf256 *dest,int length,gf256 term) {
+static void _multiply_polynomial_by_1term_inplace(gf256 *dest,int length,
+        gf256 term) {
   int i;
   for (i=0;i<length;i++) {
     dest[i] = _gf256_mul(dest[i],term);
@@ -349,7 +351,8 @@ static void _add_polynomials_inplace(gf256 *dest,int length,gf256 *terms) {
 
 static PyMethodDef MyFastPolyMathMethods [] = {
   {"f", f, METH_VARARGS, "Compute f(x)."},
-  {"full_lagrange", full_lagrange, METH_VARARGS, "Return the full lagrange for a set of shares."},
+  {"full_lagrange", full_lagrange, METH_VARARGS, 
+      "Return the full lagrange for a set of shares."},
   {NULL, NULL, 0, NULL}
 };
 

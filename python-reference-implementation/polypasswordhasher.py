@@ -7,15 +7,15 @@
 
 <Description>
   A basic library that demonstrates PolyHash when applied to passwords (see 
-  https://polypasshash.poly.edu/ for details).   This includes thresholdless
+  https://polypasswordhasher.poly.edu/ for details).   This includes thresholdless
   password support via AES 256.
 
 <Usage>
-  import polypasshash
+  import polypasswordhasher
 
   # require knowledge of 10 shares to decode others.   Create a blank, new
   # password file...
-  pph = polypasshash.PolyPassHash(threshold = 10, passwordfile = None)
+  pph = polypasswordhasher.PolyPasswordHasher(threshold = 10, passwordfile = None)
 
   # create three admins so that any two have the appropriate threshold
   pph.create_account('admin','correct horse',5)
@@ -44,7 +44,7 @@
   pph = None
 
   # let's load it back in
-  pph = polypasshash.PolyPassHash(threshold = 10,passwordfile = 'securepasswords')
+  pph = polypasswordhasher.PolyPasswordHasher(threshold = 10,passwordfile = 'securepasswords')
 
   # The password information is essentially useless alone.   You cannot know
   # if a password is valid without threshold or more other passwords!!!
@@ -71,7 +71,7 @@
 __author__ = 'Justin Cappos (jcappos@poly.edu)'
 __version__ = '0.1'
 __license__ = 'MIT'
-__all__ = ['PolyPassHash']
+__all__ = ['PolyPasswordHasher']
 
 
 from hashlib import sha256
@@ -88,7 +88,7 @@ import pickle
 
 
 # This is a PolyHash object that has special routines for passwords...
-class PolyPassHash(object):
+class PolyPasswordHasher(object):
 
   # this is keyed by user name.  Each value is a list of dicts (really a 
   # struct) where each dict contains the salt, sharenumber, and

@@ -18,10 +18,10 @@ if sys.version_info[0] != 2 or sys.version_info[1] < 5:
 fastpolymath_c = Extension("fastpolymath_c",
     sources=["fastpolymath.c"])
 
-setup(	name="PolyPassHash",
+setup(	name="PolyPasswordHasher",
     version="0.0-prealpha",
     ext_modules=[fastpolymath_c],
-    description="""An early version of PolyPassHash.""",
+    description="""An early version of PolyPasswordHasher.""",
     author="Justin Cappos",
     author_email="jcappos@poly.edu",
 )
