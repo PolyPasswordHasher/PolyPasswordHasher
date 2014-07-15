@@ -2,20 +2,20 @@
 \label{sec-expecteduse}
 
 This section discusses strengths, limitations, and expected uses of 
-PolyPassHash as compared to other techniques.
+PolyPasswordHasher as compared to other techniques.
 
 
-{\bf How does PolyPassHash compare to having an administrator enter a key
+{\bf How does PolyPasswordHasher compare to having an administrator enter a key
 at boot time to unencrypt the password database in memory?}
 
 With the administrator entering a key, the system cannot validate passwords 
 upon startup until an administrator intervenes.  With partial verification, 
-PolyPassHash can process user authentications immediately.   Furthermore, 
+PolyPasswordHasher can process user authentications immediately.   Furthermore, 
 if the administrators enter a key, all system administrators would likely 
 share this key to be able to quickly act to restart the system.   From 
 a security design standpoint, it is considered bad practice to share
 passwords.  With 
-PolyPassHash different administrators do not need to share a password or key.
+PolyPasswordHasher different administrators do not need to share a password or key.
 Each administrator may have their own password allowing access control to 
 happen naturally as administrators join and leave the organization.
 
@@ -32,13 +32,13 @@ likely to be irrevocably lost.  %Furthermore,
 To have backup servers, it is essential to have identical 
 duplicate copies of the secure token.   This complicates use in scenarios 
 like cloud computing or even just a standard master / slave deployment.
-On the other hand, PolyPassHash is entirely software based and a backup system
+On the other hand, PolyPasswordHasher is entirely software based and a backup system
 can be brought online in the same way that a normal server boots.
 
 
 
 {\bf How does an attacker that can read arbitrary memory on the 
-authentication server impact PolyPassHash?}
+authentication server impact PolyPasswordHasher?}
 
 If an attacker can read arbitrary memory on a running server where the 
 threshold of authentications has been met, the attacker can recover
@@ -46,7 +46,7 @@ the Shamir Secret Store.   This allows the attacker to recover the
 hashes for each password.   An attacker could then crack passwords
 individually in the standard way.    While these are not the majority of
 disclosed database compromises~\cite{passwordresearchblog,miranteTR13}, 
-neither PolyPassHash nor techniques like hardware key storage 
+neither PolyPasswordHasher nor techniques like hardware key storage 
 are significantly helpful in this situation.
 %protect against situations where the attacker has administrator access on a 
 %running authentication system.
@@ -54,7 +54,7 @@ are significantly helpful in this situation.
 Furthermore, new processor extensions such as Intel 
 SGX~\cite{mckeen2013innovative} expressly provide protections to select 
 portions of user space code so that even a root user, hypervisor, or the 
-operating system kernel cannot read it.   Servers running PolyPassHash can 
+operating system kernel cannot read it.   Servers running PolyPasswordHasher can 
 leverage these extensions to protect the Shamir Secret Store.
 
 However, if an attacker can read
@@ -68,17 +68,17 @@ that can read arbitrary memory on a running server.
 
 
 
-{\bf How does PolyPassHash change how users interact with existing password authentication systems?}
+{\bf How does PolyPasswordHasher change how users interact with existing password authentication systems?}
 
-Using PolyPassHash results in very minor changes to existing password
+Using PolyPasswordHasher results in very minor changes to existing password
 authentication systems.   
 %The only user perceptible difference is when 
 %the system is restarted, authentication attempts will be delayed or 
 %declined until the threshold is reached.   
 %
 The client tools for password authentication do not change in any way.   In 
-fact, because PolyPassHash only impacts password storage, it is invisible to 
-clients.   %A user cannot tell if PolyPassHash is being used, much like it is 
+fact, because PolyPasswordHasher only impacts password storage, it is invisible to 
+clients.   %A user cannot tell if PolyPasswordHasher is being used, much like it is 
 %not possible for a user to tell if a server stores a password using a salted 
 %secure hash or in plaintext.
 For the administrator's toolchain, the only change is that 
@@ -90,13 +90,13 @@ toward the threshold or not.
 %to create accounts with a threshold, while the web interface will only
 %create thresholdless accounts.
 
-{\bf How does using PolyPassHash integrate with existing password storage 
+{\bf How does using PolyPasswordHasher integrate with existing password storage 
 formats?}
 
 The file format for password storage is similar to existing systems.
 For systems which use a database, one can simply insert the share number
 as a new column in the table and change the authentication logic to include
-PolyPassHash.   
+PolyPasswordHasher.   
 
 However, 
 many servers (such as Linux, Mac and BSD) use the {\tt /etc/shadow} or 
@@ -109,7 +109,7 @@ different portions of the field are not
 delineated.  
 %Instead the storage and verification code knows which 
 %bytes of the `password' field are used for each task.   
-For PolyPassHash, one can also add the share number at a known byte location
+For PolyPasswordHasher, one can also add the share number at a known byte location
 within the `password' field (such as the beginning or end), making this
 variable length, opaque string one byte longer.
 %We do not anticipate issues with this since the `password' field and length
@@ -118,9 +118,9 @@ variable length, opaque string one byte longer.
 %field using `:' as a delimeter and so will not be impacted.
 
 
-{\bf If there is a single administrator, is PolyPassHash useful?}
+{\bf If there is a single administrator, is PolyPasswordHasher useful?}
 
-There is value in PolyPassHash whenever there are multiple
+There is value in PolyPasswordHasher whenever there are multiple
 accounts, even if only one is an administrator.   If an attacker steals the
 password file, but does not know the password for the administrator account, 
 the attacker cannot crack other user accounts.   
@@ -135,7 +135,7 @@ the administrator password.
 %It is logical to assume that most policies for login will request that
 Ignoring partial verification,
 $k$ of $n$ administrators (or power users) must login to unlock the
-PolyPassHash store.   The value of $n$ is largely irrelevant
+PolyPasswordHasher store.   The value of $n$ is largely irrelevant
 except it must be smaller than the field size since there are only $n-1$ 
 Shamir Secret shares.   (Note $n$ only includes accounts that should count
 against the threshold.)
@@ -152,19 +152,19 @@ increases password strength immensely.
 
 
 
-{\bf When is PolyPassHash most (and least) valuable?}
+{\bf When is PolyPasswordHasher most (and least) valuable?}
 
 When only a single user account exists, such as on a smartphone, 
-there is no benefit to using PolyPassHash on the local device.   However, 
+there is no benefit to using PolyPasswordHasher on the local device.   However, 
 essentially all devices are networked and interact with servers.   Web and 
-cloud services benefit from PolyPassHash as do any devices that support
+cloud services benefit from PolyPasswordHasher as do any devices that support
 multiple user logins.   
 Services that manage logins from multiple parties, substantially benefit from
-PolyPassHash.     This is because PolyPassHash makes 
+PolyPasswordHasher.     This is because PolyPasswordHasher makes 
 a password file compromise only impactful if a threshold of administrator
 passwords are already known.   %We believe that any organization that has 
 %passwords from multiple users and wants to protect those
-%passwords (which should be a universal goal) should deploy PolyPassHash.
+%passwords (which should be a universal goal) should deploy PolyPasswordHasher.
 
 
 {\bf What happens if so many threshold users forget their passwords that a
@@ -182,15 +182,15 @@ the console will still work, allowing any data on the system to be accessed.
 
 
 
-%{\bf Why might PolyPassHash be adopted when existing schemes are infrequently 
+%{\bf Why might PolyPasswordHasher be adopted when existing schemes are infrequently 
 %used to protect passwords?}
 %
-%A huge advantage of PolyPassHash is that it is a software-only solution that
+%A huge advantage of PolyPasswordHasher is that it is a software-only solution that
 %requires no additional hardware or setup.  The only change is in the 
 %authentication software.    Furthermore the change is not burdensome (or even
 %visibile) to end users.   We believe the power of simply allowing an 
 %administrator to improve security through a simple software action (like
-%{\tt apt-get install polypasshash}) could substantially increase adoption.
+%{\tt apt-get install polypasswordhasher}) could substantially increase adoption.
 
 
 
@@ -199,7 +199,7 @@ letmein, and password?}
 
 Ignoring partial verification for the moment, 
 if extremely weak passwords are used for a threshold of threshold accounts 
-(like administrators), PolyPassHash will not provide strong protection.   If
+(like administrators), PolyPasswordHasher will not provide strong protection.   If
 there are only a few bits of entropy in the password, while exponentially
 larger, the search space will still be small.   It is thus critical that
 the administrators choose strong passwords.   However,

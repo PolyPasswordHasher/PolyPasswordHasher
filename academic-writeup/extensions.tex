@@ -1,7 +1,7 @@
-\subsection{PolyPassHash Extensions}
+\subsection{PolyPasswordHasher Extensions}
 \label{sec-extensions}
 
-There are three major limitations of PolyPassHash as described in the previous
+There are three major limitations of PolyPasswordHasher as described in the previous
 section.   
 First, for some systems like Facebook or gmail, an attacker may control a
 huge number of accounts.  In practice there are really two 
@@ -17,7 +17,7 @@ must have a threshold of correct passwords before any can be authenticated.
 This may cause logins to be delayed for an unacceptable time after a restart.
 This section discusses an extension that leaks partial information about salted 
 password hashes, but allows immediate authentication upon restart.   As a 
-result, PolyPassHash still provides an exponential security increase, but 
+result, PolyPasswordHasher still provides an exponential security increase, but 
 no longer must wait for account logins upon restart.
 
 
@@ -45,7 +45,7 @@ version of the PolyHashing store algorithm.   This store is identical to
 the main algorithm except
 that the lowest order term (the constant term) of the polynomial represents 
 a portion of the encryption key, as is shown in the bottom half of 
-Figure~\ref{fig-polypasshashoverview}.   (The key is stored in the same manner
+Figure~\ref{fig-polypasswordhasheroverview}.   (The key is stored in the same manner
 as traditional Shamir Secret Sharing
 where the constant term of the Polynomial encodes the secret.)
 A party that knows the threshold of administrator passwords can XOR those
@@ -57,11 +57,11 @@ privacy from an attacker unless they possess a threshold of account passwords.
 
 
 Creation of a thresholdless account involves a similar series of steps to
-other PolyPassHash passwords.   As before the system obtains the 
+other PolyPasswordHasher passwords.   As before the system obtains the 
 salted hash for the password.   However, the salted cryptographic hash of 
 the password is encrypted with AES instead of XORing it with a share.
 To indicate this is a thresholdless account, the share field can 
-be set to 0 to indicate that this is not a normal PolyPassHash 
+be set to 0 to indicate that this is not a normal PolyPasswordHasher 
 store.   (Note that the share 0 will not be used normally in Shamir secret
 sharing.)   When the user attempts to login, if a large enough 
 threshold of passwords has been entered, the AES key is available to decrypt 
@@ -115,7 +115,7 @@ be encrypted with the user's public key.   When the administrator presents
 their key to login, this key is used to decrypt the original share.   This
 process can be repeated multiple times if the user has multiple shares.
  The share can then be used the same as any other share to 
-unlock a PolyPassHash data store.
+unlock a PolyPasswordHasher data store.
 
 
 For authentication of threshold account using other techniques such as 
@@ -197,7 +197,7 @@ limiting the rate of password attempts can mitigate the risk from an attacker
 that does not know the salt.   However, if an attacker has stolen the password 
 database, they can quickly compute a value that will be correctly verified 
 upon restart.  However, once a threshold of passwords is provided,
-PolyPassHash knows the full hash and can detect any such
+PolyPasswordHasher knows the full hash and can detect any such
 malicious logins.   Much like other decoy schemes~\cite{juels2013honeywords,
 Kontaxis_CCS_2013}, partial verification allow incorrect logins but
 later detects this occurrence and provides strong evidence that the password

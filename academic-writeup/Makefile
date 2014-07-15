@@ -12,7 +12,7 @@ SECTIONS = \
 	acknowledgements.tex \
 	abstract.tex \
 	polyhashing.tex \
-	polypasshash.tex \
+	polypasswordhasher.tex \
 	threatmodel.tex \
 	background.tex \
 	extensions.tex \

@@ -102,11 +102,11 @@ of all stored data until a certain amount of valid data is known.   Once this
 threshold of data is known, a PolyHashing store then provides integrity 
 checking for all future data.
 
-Using PolyHashing, we built a system called PolyPassHash that 
-protects password hashes.  PolyPassHash ensures that a party cannot 
+Using PolyHashing, we built a system called PolyPasswordHasher that 
+protects password hashes.  PolyPasswordHasher ensures that a party cannot 
 read or check any individual password in the password list, without knowing
 a configurable threshold number of passwords (often two to four).   Thus when 
-a system using PolyPassHash restarts, a threshold of users must provide correct
+a system using PolyPasswordHasher restarts, a threshold of users must provide correct
 passwords before any may be authenticated.   (We discuss an extension called
 \emph{partial verification} that allows verification to occur immediately
 upon reboot while handling erroenously or maliciously incorrect passwors
@@ -127,26 +127,26 @@ protected in as strong of a manner as existing salted hashing
 techniques.  For an attacker that does not know a threshold of passwords, 
 this makes password cracking infeasible.
 
-PolyPassHash only requires changes on one party (the server) and can be 
+PolyPasswordHasher only requires changes on one party (the server) and can be 
 integrated smoothly into existing systems and verification processes.  % Apart
 %from waiting for a threshold of passwords for authentication when the system
 %is initialized, 
-When adding PolyPassHash to an existing system, no changes are visible to 
+When adding PolyPasswordHasher to an existing system, no changes are visible to 
 the user.  In fact, existing
 client password login mechanisms do not need to be modified in any way.   The
 only changes occur in the way that the encoded password data is generated,
 stored, and verified by the server.
 
 
-PolyPassHash relies on simple primitives that are efficient from a storage, 
+PolyPasswordHasher relies on simple primitives that are efficient from a storage, 
 memory, and computational standpoint.   The additional storage cost is 
 approximately one extra byte of data per user account over a salted 
-hash.   The memory overhead of PolyPassHash is about a kilobyte of 
+hash.   The memory overhead of PolyPasswordHasher is about a kilobyte of 
 information, independent of the number of passwords stored.
 The computational primitives are fast and well known
 such as XOR, a salted hash function (SHA256), AES, and Shamir Secret 
 Sharing~\cite{shamir1979share}.
-As such, even when run on a three year old laptop, PolyPassHash can process 
+As such, even when run on a three year old laptop, PolyPasswordHasher can process 
 tens of thousands of authentication requests per second.
 
 
@@ -156,6 +156,6 @@ including the complete password file,
 2) uses only software changes on the server (no hardware changes, 
 additional servers, or client changes), and 3) requires exponentially more 
 effort for the attacker.   
-As such, PolyPassHash increases the difficulty
+As such, PolyPasswordHasher increases the difficulty
 of cracking passwords while remaining easy to deploy.
 

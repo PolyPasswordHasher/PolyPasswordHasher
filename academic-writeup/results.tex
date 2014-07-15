@@ -4,7 +4,7 @@
 \begin{figure}[t]
 %\begin{minipage}[b]{.45\linewidth}
     \includegraphics[width=.75\columnwidth, angle=270]{resultdata/onebigtimegraph.eps}
-	\caption{Time for PolyPassHash operations.  The plots for thresholdless
+	\caption{Time for PolyPasswordHasher operations.  The plots for thresholdless
 creation and verification overlap as do the plots for the threshold versions
 of each action.}
 	\label{fig:time_basic_operations}  
@@ -13,26 +13,26 @@ of each action.}
 %\hspace{.06\linewidth}
 %\begin{minipage}[b]{.45\linewidth}
 %    \includegraphics[width=.75\textwidth, angle=270]{resultdata/onebigperformancegraph.eps}
-%	\caption{Performance (operations per second) for PolyPassHash operations.  }
+%	\caption{Performance (operations per second) for PolyPasswordHasher operations.  }
 %	\label{fig:performance_basic_operations}  
 %\end{minipage}
 %\end{figure*}
 This section describes a performance evaluation of our prototype of 
-PolyPassHash.   
-To understand the performance of PolyPassHash,
+PolyPasswordHasher.   
+To understand the performance of PolyPasswordHasher,
 we performed a series of microbenchmarks on an early-2011 MacBook Pro with 
 4GB of RAM, a 2.3 GHz Intel Core i5 processor.  
 
 
 %\begin{figure}[t]
 %    \includegraphics[width=0.3\textwidth,angle=270]{resultdata/onebigtimegraph}
-%	\caption{Time for basic PolyPassHash operations.  }
+%	\caption{Time for basic PolyPasswordHasher operations.  }
 %	\label{fig:time_basic_operations}  
 %\end{figure}
 %
 %\begin{figure}[t]
 %    \includegraphics[width=0.3\textwidth,angle=270]{resultdata/onebigperformancegraph}
-%	\caption{Performance (users impacted by an operation per second) for basic PolyPassHash operations.  }
+%	\caption{Performance (users impacted by an operation per second) for basic PolyPasswordHasher operations.  }
 %	\label{fig:performance_basic_operations}  
 %\end{figure}
 
@@ -43,9 +43,9 @@ For benchmarking purposes, each action is performed sequentially despite being
 embarrassingly parallelizable.
 
 
-\subsection{Performance Of A PolyPassHash Store}
+\subsection{Performance Of A PolyPasswordHasher Store}
 
-%To evaluate the performance implications of PolyPassHash, we varied the 
+%To evaluate the performance implications of PolyPasswordHasher, we varied the 
 %threshold.   While we do not believe that
 %there will be many (if any) practical situations where the threshold would be 
 %set to a value larger than ten.
@@ -87,7 +87,7 @@ Depending on the threshold, the average verification time
 varies from 77$\mu$s to 190$\mu$s.  
 A store with a threshold of 8 can create more than 12K 
 accounts per second.   Given there are a maximum of 255 threshold accounts
-that can be created (at least with a PolyPassHash implementation that uses
+that can be created (at least with a PolyPasswordHasher implementation that uses
 GF256), this clearly is not a performance concern.
 
 
@@ -98,7 +98,7 @@ about 40K thresholdless accounts can be created each second.   This is
 similar to the time it takes to generate a salted SHA256 hash for a 
 provided password (16$\mu$s). 
 
-Note that changing the password requires that PolyPassHash performs the same
+Note that changing the password requires that PolyPasswordHasher performs the same
 operation as account creation (potentially along 
 with authentication of the old password).
 
@@ -110,7 +110,7 @@ numbers.   By varying the threshold, the creation time varies from
 380$\mu$s to 1.13ms.   This operation is only performed when a 
 new password file is created.
 
-{\bf Unlocking a PolyPassHash Store.}
+{\bf Unlocking a PolyPasswordHasher Store.}
 When the server restarts, the
 random coefficients are computed from the set of provided shares with
 full interpolation.   The time needed varies 
@@ -120,10 +120,10 @@ Note that small thresholds are very fast, with a store with a threshold of 8
 being unlocked in 617$\mu$s.
 
 This is fast enough that if some passwords are incorrectly entered, 
-PolyPassHash can (na\"ively) detect them.   For example, suppose that
+PolyPasswordHasher can (na\"ively) detect them.   For example, suppose that
 a threshold of 10 is used and that 14 passwords are provided and only
 10 of them are correct.   All possible combinations of 10 passwords can be
-checked by PolyPassHash in 618ms.
+checked by PolyPasswordHasher in 618ms.
 Partial verification will also discard most passwords that are entered 
 incorrectly to prevent them from being used to attempt to unlock the 
 password store.
@@ -137,14 +137,14 @@ password store.
 %system is restarted.  
 
 
-\subsection{Memory and Storage Costs of PolyPassHash}
+\subsection{Memory and Storage Costs of PolyPasswordHasher}
 
 
 \begin{table}[t]
 {\scriptsize
 \begin{tabular}{|l|l|l|l|}
 \hline
-Password & Original & Salted, Hashed & PolyPassHash \\
+Password & Original & Salted, Hashed & PolyPasswordHasher \\
 Source & Disk Space & Disk Space & Disk Space\\
 \hline
 \hline
@@ -187,13 +187,13 @@ was leaked.   Other breaches include usernames and similar data.  }
 %\hline
 %\end{tabular}
 %}
-%\caption{Cost to store the password hash database for PolyPassHash and 
+%\caption{Cost to store the password hash database for PolyPasswordHasher and 
 %conventional salted hash techniques in terms of memory and disk space.
 %A 16 byte salt and 32 byte hash is assumed for all schemes.}
 %	\label{tab:extracost}  
 %\end{table}
 
-Storing passwords with PolyPassHash requires additional information be stored
+Storing passwords with PolyPasswordHasher requires additional information be stored
 for each account.   Namely, for each account, since each share is a value
 in GF256, there must be a one byte share number stored for each account.   
 This represents an additional 1 byte of storage space for each account in 
@@ -219,7 +219,7 @@ the polynomial coefficients for a store.   The total
 size of this data is the threshold value multiplied by the hash length.
 Thus, the in-memory threshold data is likely to be under a 
 kilobyte in practice.% (Table~\ref{tab:extracost}).   This is likely to be smaller than the (also minimal)
-%memory space needed to store the additional code for PolyPassHash.
+%memory space needed to store the additional code for PolyPasswordHasher.
 When thresholdless accounts are used, the AES key used is the 
 constant term 
 of the polynomial coefficients and so does not incur additional cost.
@@ -254,7 +254,7 @@ memory requirements.
 \hspace{-4mm}
 \includegraphics[width=.36\textwidth, angle=270]{resultdata/plotcrack.eps}
 	\caption{Time to crack a password store given 1 billion attempts
-per second.   The k=1 case for PolyPassHash is the same as the
+per second.   The k=1 case for PolyPasswordHasher is the same as the
 legacy salted hash scheme.   The partial verification values show 
 how leaking 2 bytes impacts cracking time.   A threshold of 3 without partial 
 verification falls well outside the axis of the graph.}
@@ -262,7 +262,7 @@ verification falls well outside the axis of the graph.}
 \end{figure}
 
 %Assuming a threshold of accounts is not known, cracking passwords takes 
-%exponentially more time with PolyPassHash than standard hash
+%exponentially more time with PolyPasswordHasher than standard hash
 %schemes.   The reason is that an attacker must simultaneously attempt to
 %crack the threshold number of passwords at once.
 %An attacker must attempt to determine the random coefficients that are 
@@ -273,28 +273,28 @@ verification falls well outside the axis of the graph.}
 %possible values, the attacker is choosing values from $V^p$ possible guesses.   
 %Solutions that involve slower hash functions or multiple hash iterations 
 %result in only a linear increase in attack time and verification time.
-%Since passwords must be correctly guessed simultaneously with PolyPassHash, 
-%PolyPassHash results in an \emph{exponential} increase in attack time.
+%Since passwords must be correctly guessed simultaneously with PolyPasswordHasher, 
+%PolyPasswordHasher results in an \emph{exponential} increase in attack time.
 
 {\bf General Analysis.}
 Even when an attacker needs to guess only a few passwords, in many cases 
-PolyPassHash's \emph{exponential increase} in guessing time ($O(V^p)$ instead 
+PolyPasswordHasher's \emph{exponential increase} in guessing time ($O(V^p)$ instead 
 of $O(pV)$) makes guessing computationally infeasible 
 (Figure~\ref{fig:cracktime}).   For example, suppose 
 an attacker wants to guess three passwords that they know are each comprised 
 of 6 randomly chosen characters\footnote{These passwords
 are extremely weak and we do not advocate their use.   This 
-example is used to illustrate the strength of PolyPassHash even with 
+example is used to illustrate the strength of PolyPasswordHasher even with 
 weak passwords.}.  Recent results 
 have shown that a GPU can compute on the order of a billion password hashes a 
 second~\cite{ElcomSoftGPUCracking, zonenberg2009distributed}, allowing the 
 attacker to search the key space for all three passwords in under an hour.
 Thus the current state of the art provides little protection in this case.
 
-In the case of PolyPassHash, the attacker must \emph{simultaneously}
+In the case of PolyPasswordHasher, the attacker must \emph{simultaneously}
 guess all three passwords.   This means the attacker needs to guess from 
 $3.97 \times {10^{35}}$ values.   This is roughly 23 orders of magnitude more effort.
-When PolyPassHash is used with the same passwords and the GPU 
+When PolyPasswordHasher is used with the same passwords and the GPU 
 accelerated technique, searching the key space would take $1.25 \times 10^{19}$
 CPU years (does not fit on the axis of Figure~\ref{fig:cracktime}).   To put 
 this number into context,
@@ -302,7 +302,7 @@ ignoring smartphones there are about 900 million computers on the
 planet~\cite{computersexisting}.   The estimated age of the universe is 
 $(1.3798 \pm 0.0037) \times 10^{10}$~\cite{universeage}.   The time needed to crack 
 three random 6 character passwords protected
-by PolyPassHash is more CPU time than would be provided by every computer 
+by PolyPasswordHasher is more CPU time than would be provided by every computer 
 on the planet working nonstop for the estimated age of the universe!
 
 Even a threshold of two is substantially stronger than existing
@@ -339,7 +339,7 @@ three passwords and then $1.41 \times 10^{21}$ operations to crack the password
 store.   With one billion operations per second, sweeping the search
 space would still require 45 thousand CPU years (8 orders of magnitude
 more time than salting and hashing).
-%password strength if used, even with partial verification PolyPassHash still
+%password strength if used, even with partial verification PolyPasswordHasher still
 %represents a huge benefit over only salting and hashing.
 
 
@@ -373,7 +373,7 @@ cracked in under 5 hours.
 %In comparison, 948K of the 6.5M unique LinkedIn passwords were cracked within
 %1 hour of computation on the same system / program.
 
-If PolyPassHash were protecting these passwords, the ability to crack the
+If PolyPasswordHasher were protecting these passwords, the ability to crack the
 passwords depends on the threshold.   The effective password strength is 
 that of the weakest passwords combined, times the probability of selecting
 those accounts in that order.  
@@ -395,7 +395,7 @@ is essential to prevent remote brute-force password cracking.
 The thresholdless user passwords (many of which are extremely poor) 
 cannot be cracked until a threshold of administrator passwords are 
 compromised.  This means that even if only administrators can be convinced to 
-use strong passwords, PolyPassHash provides substantial security benefits.
+use strong passwords, PolyPasswordHasher provides substantial security benefits.
 
 
 
@@ -411,6 +411,6 @@ other to know the random coefficients.   If the password hash and length is
 such that any possible hash value can be generated and all are equally likely 
 (intended properties of hashing schemes), then all hashes are equally
 likely.  This means in the extreme case where the password length is such that 
-all hashes can be generated and all are equally likely, PolyPassHash's use of 
+all hashes can be generated and all are equally likely, PolyPasswordHasher's use of 
 Shamir Secret Sharing provides information-theoretic protection.
 }

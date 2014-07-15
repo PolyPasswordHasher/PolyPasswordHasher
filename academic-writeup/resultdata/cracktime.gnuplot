@@ -29,7 +29,7 @@ set style line 4 lw 3
 set terminal postscript enhanced color 20
 set output "plotcrack.eps"
 plot "crack.dat" using 1:2 title 'Salted Hash' with linespoints ls 1 lw 6 ps 3, \
- "crack.dat" using 1:3 title 'PolyPassHash k=2' with linespoints ls 2 lw 6 ps 3, \
- "crack.dat" using 1:4 title 'PolyPassHash k=3' with linespoints ls 3 lw 6 ps 3, \
- "crack.dat" using 1:5 title 'PolyPassHash partial k=2' with linespoints ls 4 lw 6 ps 3, \
- "crack.dat" using 1:6 title 'PolyPassHash partial k=3' with linespoints ls 5 lw 6 ps 3
+ "crack.dat" using 1:3 title 'PolyPasswordHasher k=2' with linespoints ls 2 lw 6 ps 3, \
+ "crack.dat" using 1:4 title 'PolyPasswordHasher k=3' with linespoints ls 3 lw 6 ps 3, \
+ "crack.dat" using 1:5 title 'PolyPasswordHasher partial k=2' with linespoints ls 4 lw 6 ps 3, \
+ "crack.dat" using 1:6 title 'PolyPasswordHasher partial k=3' with linespoints ls 5 lw 6 ps 3
