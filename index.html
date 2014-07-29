@@ -63,9 +63,9 @@
 
 <p>This would require an attacker to be able to read memory from a running server.   While the communication between the client and server are typically encrypted, this only prevents an attacker on the network from eavesdropping on the password.   The server typically obtains the client's password in plain-text and then performs the salted hash.   So if an attacker can read memory on a running server, they can steal passwords regardless of how they are protected.</p>
 
-<p>However, even if an attacker can recover the line / Shamir Secret Share, the account passwords are still salted and hashed.   So accounts are still protected using the standard salted and hashed techniques that people leverage today.   So in the worst case, PolyPasswordHasher provides the same protection as what people are using today.</p>
+<p>However, even if an attacker can recover the line / Shamir Secret Share, the account passwords are still salted and hashed.   (Salting and hashing is the industry standard best practices for password protection today.)   So even if an attacker can read memory, stored accounts still have protection equal to the best case today.</p>
 
-<p>Furthermore, it turns out that the <a href="https://isis.poly.edu/%7Ejcappos/papers/tr-cse-2013-02.pdf">most commonly disclosed cause of password database compromise is SQL injection</a>, which does not imply the attacker can read arbitrary memory.   So in many cases, an attacker that can steal the database does not have this access.</p>
+<p>Fortunately, most prior password database breaches did not result in the attacker gaining access to memory on a running server.  <a href="https://isis.poly.edu/%7Ejcappos/papers/tr-cse-2013-02.pdf">The most commonly disclosed cause of password database compromise is SQL injection</a>, which does not imply the attacker can read arbitrary memory.   So in many cases, an attacker that can steal the database does not have this access.</p>
 
 <p><a name="restart"></a></p>
 
