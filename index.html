@@ -61,7 +61,7 @@
 <h4>
 <a name="what-if-an-attacker-figures-out-the-sensitive-information-line--shamir-secret-share" class="anchor" href="#what-if-an-attacker-figures-out-the-sensitive-information-line--shamir-secret-share"><span class="octicon octicon-link"></span></a>"What if an attacker figures out the sensitive information (line / Shamir Secret Share)?"</h4>
 
-<p>This would require an attacker to be able to read memory from a running server.   Typically the server obtains the client's password in plain-text and then performs the salted hash.   So if an attacker can read memory on a running server, they can steal passwords unencrypted regardless of the technique that is used.</p>
+<p>This would require an attacker to be able to read memory from a running server.   While the communication between the client and server are typically encrypted, this only prevents an attacker on the network from eavesdropping on the password.   The server typically obtains the client's password in plain-text and then performs the salted hash.   So if an attacker can read memory on a running server, they can steal passwords unencrypted regardless of the technique that is used.</p>
 
 <p>However, even if an attacker can recover the line / Shamir Secret Share, the account passwords are still salted and hashed.   So accounts are still protected using the standard salted and hashed techniques that people leverage today.   So in the worst case, PolyPasswordHasher provides the same protection as what people are using today.</p>
 
