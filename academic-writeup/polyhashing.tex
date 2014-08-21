@@ -95,7 +95,8 @@ XORing the $h(v)$ values with the data in the PolyHashing store, one can
 recover a threshold of shares.   This allows the party to reconstruct all
 data in the threshold cryptosystem's store.   By keeping this information
 only in memory on a running system, an attacker that can read the disk 
-contents but does not know a threshold of correct values cannot validate
+contents but does not know a threshold of correct values.  Since a threshold
+is required, the attacker cannot validate
 the correctness of values individually.
 
 More formally, given an information-theoretic $(k,n)$-threshold cryptosystem 

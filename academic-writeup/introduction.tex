@@ -107,16 +107,16 @@ protects password hashes.  PolyPasswordHasher ensures that a party cannot
 read or check any individual password in the password list, without knowing
 a configurable threshold number of passwords (often two to four).   Thus when 
 a system using PolyPasswordHasher restarts, a threshold of users must provide correct
-passwords before any may be authenticated.   (We discuss an extension called
+passwords before any may be authenticated.   We leverage a technique called
 \emph{partial verification} that allows verification to occur immediately
-upon reboot while handling erroenously or maliciously incorrect passwors
-in Section~\ref{sec-partial}.)
+upon reboot while handling erroenously or maliciously incorrect passwords
+(Section~\ref{sec-partial}).
 %Note that some passwords,
 %such as that of an administrator, can count for multiple passwords within
 %this threshold.  
-Note that an extension also exists to cause untrusted users (such as 
-Facebook or Gmail) to have their password not count toward the threshold for
-validation purposes.    
+Note that PolyPasswordHasher can also allow untrusted users (such as 
+average Facebook or Gmail users) to have their password protected, but not 
+counted toward the threshold for validation purposes.
 
 Once the threshold is 
 reached, it is possible to quickly and efficiently check all future password
@@ -146,8 +146,8 @@ information, independent of the number of passwords stored.
 The computational primitives are fast and well known
 such as XOR, a salted hash function (SHA256), AES, and Shamir Secret 
 Sharing~\cite{shamir1979share}.
-As such, even when run on a three year old laptop, PolyPasswordHasher can process 
-tens of thousands of authentication requests per second.
+As such, even when run on a three-year-old laptop, PolyPasswordHasher can 
+process tens of thousands of authentication requests per second.
 
 
 This work presents the first password protection scheme that 1) protects 
