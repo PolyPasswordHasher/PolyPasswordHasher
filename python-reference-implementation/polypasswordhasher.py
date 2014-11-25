@@ -106,6 +106,14 @@ class PolyPasswordHasher(object):
   # length of the salt in bytes
   saltsize = 16
 
+  # ICB iterations and recombination iterations...
+  icb_iterations = 1000
+  recombination_iterations = 1000
+
+  # secret verification routines
+  secret_length = 32
+  secret_verification_length = 4
+
   # number of bytes of data used for isolated validation...
   isolated_check_bits= 0
 
@@ -135,7 +143,9 @@ class PolyPasswordHasher(object):
       # generate a 256 bit key for AES.   I need 256 bits anyways 
       # since I'll be XORing by the 
       # output of SHA256, I want it to be 256 bits (or 32 bytes) long
-      self.thresholdlesskey = os.urandom(32)
+      # we add an integrity check at the end of the secret
+      self.thresholdlesskey = self.create_secret()
+
       # protect this key.   
       self.shamirsecretobj = shamirsecret.ShamirSecret(threshold, self.thresholdlesskey)
       # I've generated it now, so it is safe to use!
@@ -283,21 +293,29 @@ class PolyPasswordHasher(object):
 
       # If bootstrapping, isolated validation needs to be done here!
       if not self.knownsecret:
-        if saltedpasswordhash[len(saltedpasswordhash)-self.isolated_check_bits:] == entry['passhash'][len(entry['passhash'])-self.isolated_check_bits:]:
+#        if saltedpasswordhash[len(saltedpasswordhash)-self.isolated_check_bits:] == entry['passhash'][len(entry['passhash'])-self.isolated_check_bits:]:
+        if self.isolated_validation(saltedpasswordhash, entry['passhash']):
           return True
         else:
           return False
 
       # XOR to remove the salted hash from the password
       sharedata = _do_bytearray_XOR(saltedpasswordhash, entry['passhash'][:len(entry['passhash'])-self.isolated_check_bits])
-
+        
+      if self.isolated_check_bits > 0:
+        isolated_check = self.isolated_validation(saltedpasswordhash, entry['passhash'])
+      else:
+        isolated_check = False
 
       # If a thresholdless account...
       if entry['sharenumber'] == 0:
         # return true if the password encrypts the same way...
         if AES.new(self.thresholdlesskey).encrypt(saltedpasswordhash) == entry['passhash'][:len(entry['passhash'])-self.isolated_check_bits]:
           return True
+
         # or false otherwise
+        if isolated_check:
+            print("Isolated check matches but full hash doesn't, this might be a break-in!")
         return False
 
 
@@ -305,7 +323,13 @@ class PolyPasswordHasher(object):
       share = (entry['sharenumber'],sharedata)
 
       # If a normal share, return T/F depending on if this share is valid.
-      return self.shamirsecretobj.is_valid_share(share)
+      if self.shamirsecretobj.is_valid_share(share):
+          return True
+    
+      if isolated_check:
+          print("Isolated check matches but full hash doesn't, this might be a break-in!")
+
+      return False
       
 
 
@@ -354,6 +378,9 @@ class PolyPasswordHasher(object):
     # This will raise a ValueError if a share is incorrect or there are other
     # issues (like not enough shares).
     self.shamirsecretobj.recover_secretdata(sharelist)
+    if not self.verify_secret(self.shamirsecretobj.secretdata):
+        raise ValueError("This is not a valid secret recombination, wrong account information provided")
+
     self.thresholdlesskey = self.shamirsecretobj.secretdata
 
     for entry in self.bootstrap_accounts:
@@ -365,7 +392,63 @@ class PolyPasswordHasher(object):
 
     # it worked!
     self.knownsecret = True
+
+  def isolated_validation(self, passhash, stored_hash):
+
+    passhash_icb = passhash[len(passhash) - self.isolated_check_bits:]
+    local_icb = stored_hash[len(stored_hash) - self.isolated_check_bits:]
+    return passhash_icb == local_icb
+
+  def verify_secret(self, secret):
+    """
+    Checks whether the secret given contains a
+    proper fingerprint with the following form:
+
+    [28 bytes random data][4 bytes hash of random data]
+
+    The length of both fields is configurable through the settings.py
+    file
+
+    the boolean returned indicates whether it falls under the
+    fingerprint or not
+    """
+    secret_length = self.secret_length
+    verification_len = self.secret_verification_length
+    verification_iterations = self.recombination_iterations
+
+    random_data = secret[:secret_length - verification_len]
+
+    secret_digest = sha256(random_data).digest()
+
+    for i in range(1, verification_iterations):
+        secret_digest = sha256(secret_digest).digest()
+
+
+    secret_digest = secret_digest[:verification_len]
+    original_digest = secret[len(secret) - verification_len:]
     
+    return secret_digest == original_digest
+          
+  def create_secret(self):
+      """
+      Returns a random string consisting of 28 bytes of random data
+      and 4 bytes of hash to verify the secret upon recombination
+      """
+      secret_length = self.secret_length
+      verification_len = self.secret_verification_length
+      verification_iterations = self.recombination_iterations
+      
+      secret = os.urandom(secret_length - verification_len)
+
+      secret_digest = sha256(secret).digest()
+
+      for i in range(1, verification_iterations):
+          secret_digest = sha256(secret_digest).digest()
+
+      
+      secret += secret_digest[:verification_len]
+      return secret
+   
 
 
 #### Private helper...
