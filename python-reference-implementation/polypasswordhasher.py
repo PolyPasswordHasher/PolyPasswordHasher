@@ -106,7 +106,7 @@ class PolyPasswordHasher(object):
   saltsize = 16
 
   # number of bytes of data used for partial verification...
-  partialbytes = 0
+  isolated_check_bits= 0
 
   # thresholdless support.   This could be random (and unknown) in the default
   # algorithm
@@ -117,7 +117,7 @@ class PolyPasswordHasher(object):
   # co-analysis of password hashes
   nextavailableshare = None
 
-  def __init__(self, threshold, passwordfile = None, partialbytes = 0):
+  def __init__(self, threshold, passwordfile = None, isolated_check_bits = 0):
     """Initialize a new (empty) object with the threshold.   I could store
        the threshold in the file, but don't do this currently.   I just assume
        it's known to the program"""
@@ -126,7 +126,7 @@ class PolyPasswordHasher(object):
 
     self.accountdict = {}
 
-    self.partialbytes = partialbytes
+    self.isolated_check_bits = isolated_check_bits
 
     # creating a new password file
     if passwordfile is None:
@@ -205,7 +205,7 @@ class PolyPasswordHasher(object):
       # bother?
 
       # append the partial verification data...
-      thisentry['passhash'] += saltedpasswordhash[len(saltedpasswordhash)-self.partialbytes:]
+      thisentry['passhash'] += saltedpasswordhash[len(saltedpasswordhash)-self.isolated_check_bits:]
       
       self.accountdict[username].append(thisentry)
       # and exit (don't increment the share count!)
@@ -222,7 +222,7 @@ class PolyPasswordHasher(object):
       # threshold hashes can be simultaneously decoded
       thisentry['passhash'] = _do_bytearray_XOR(saltedpasswordhash, shamirsecretdata)
       # append the partial verification data...
-      thisentry['passhash'] += saltedpasswordhash[len(saltedpasswordhash)-self.partialbytes:]
+      thisentry['passhash'] += saltedpasswordhash[len(saltedpasswordhash)-self.isolated_check_bits:]
       
 
       self.accountdict[username].append(thisentry)
@@ -236,7 +236,7 @@ class PolyPasswordHasher(object):
   def is_valid_login(self,username,password):
     """ Check to see if a login is valid."""
 
-    if not self.knownsecret and self.partialbytes == 0:
+    if not self.knownsecret and self.isolated_check_bits == 0:
       raise ValueError("Password File is not unlocked and partial verification is disabled!")
 
 
@@ -254,19 +254,19 @@ class PolyPasswordHasher(object):
 
       # If not unlocked, partial verification needs to be done here!
       if not self.knownsecret:
-        if saltedpasswordhash[len(saltedpasswordhash)-self.partialbytes:] == entry['passhash'][len(entry['passhash'])-self.partialbytes:]:
+        if saltedpasswordhash[len(saltedpasswordhash)-self.isolated_check_bits:] == entry['passhash'][len(entry['passhash'])-self.isolated_check_bits:]:
           return True
         else:
           return False
 
       # XOR to remove the salted hash from the password
-      sharedata = _do_bytearray_XOR(saltedpasswordhash, entry['passhash'][:len(entry['passhash'])-self.partialbytes])
+      sharedata = _do_bytearray_XOR(saltedpasswordhash, entry['passhash'][:len(entry['passhash'])-self.isolated_check_bits])
 
 
       # If a thresholdless account...
       if entry['sharenumber'] == 0:
         # return true if the password encrypts the same way...
-        if AES.new(self.thresholdlesskey).encrypt(saltedpasswordhash) == entry['passhash'][:len(entry['passhash'])-self.partialbytes]:
+        if AES.new(self.thresholdlesskey).encrypt(saltedpasswordhash) == entry['passhash'][:len(entry['passhash'])-self.isolated_check_bits]:
           return True
         # or false otherwise
         return False
@@ -316,7 +316,9 @@ class PolyPasswordHasher(object):
           continue
 
         thissaltedpasswordhash = sha256(entry['salt']+password).digest()
-        thisshare = (entry['sharenumber'], _do_bytearray_XOR(thissaltedpasswordhash, entry['passhash'][:len(entry['passhash'])-self.partialbytes]))
+        thisshare = (entry['sharenumber'],
+            _do_bytearray_XOR(thissaltedpasswordhash, 
+                entry['passhash'][:len(entry['passhash'])-self.isolated_check_bits]))
 
 
         sharelist.append(thisshare)

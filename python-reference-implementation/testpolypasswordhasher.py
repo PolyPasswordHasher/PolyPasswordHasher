@@ -64,7 +64,7 @@ pph.create_account('larry','fish',0)
 
 # require knowledge of 10 shares to decode others.   Create a blank, new
 # password file...
-pph = polypasswordhasher.PolyPasswordHasher(threshold = THRESHOLD, passwordfile = None, partialbytes = 2)
+pph = polypasswordhasher.PolyPasswordHasher(threshold = THRESHOLD, passwordfile = None, isolated_check_bits = 2)
 
 # create three admins so that any two have the appropriate threshold
 pph.create_account('admin','correct horse',THRESHOLD/2)
@@ -97,7 +97,7 @@ pph = None
 
 
 # let's load it back in
-pph = polypasswordhasher.PolyPasswordHasher(threshold = THRESHOLD,passwordfile = 'securepasswords', partialbytes=2)
+pph = polypasswordhasher.PolyPasswordHasher(threshold = THRESHOLD,passwordfile = 'securepasswords', isolated_check_bits=2)
 
 
 # The password threshold info should be useful now...
