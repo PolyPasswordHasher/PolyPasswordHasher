@@ -53,7 +53,7 @@
   except ValueError:
     pass
   else:
-    print "Can't get here!   It's still locked!!!"
+    print "Can't get here!   It's still bootstrapping!!!"
 
   # with a threshold (or more) of correct passwords, it decodes and is usable.
   pph.unlock_password_data([('admin','correct horse'), ('root','battery staple'), ('bob','puppy'),('dennis','menace'])
@@ -94,6 +94,7 @@ class PolyPasswordHasher(object):
   # struct) where each dict contains the salt, sharenumber, and
   # passhash (saltedhash XOR shamirsecretshare).   
   accountdict = None
+  bootstrap_accounts = None
 
   # This contains the shamirsecret object for this data store
   shamirsecretobj = None
@@ -105,7 +106,7 @@ class PolyPasswordHasher(object):
   # length of the salt in bytes
   saltsize = 16
 
-  # number of bytes of data used for partial verification...
+  # number of bytes of data used for isolated validation...
   isolated_check_bits= 0
 
   # thresholdless support.   This could be random (and unknown) in the default
@@ -125,6 +126,7 @@ class PolyPasswordHasher(object):
     self.threshold = threshold
 
     self.accountdict = {}
+    self.bootstrap_accounts = []
 
     self.isolated_check_bits = isolated_check_bits
 
@@ -172,8 +174,7 @@ class PolyPasswordHasher(object):
     """Create a new account.  Raises a ValueError if given bad data or if the
        system isn't initialized"""
 
-    if not self.knownsecret:
-      raise ValueError("Password File is not unlocked!")
+      
 
     if username in self.accountdict:
       raise ValueError("Username exists already!")
@@ -192,23 +193,47 @@ class PolyPasswordHasher(object):
     # for each share, we will add the appropriate dictionary.
     self.accountdict[username] = []
 
-    if shares == 0:
+    # we are bootstrapping, we will create a bootstrap account
+    if not self.knownsecret:
+        
+      # We can only create thresholdless accounts while bootstrapping
+      if shares != 0:
+        del self.accountdict[username]
+        raise ValueError("Cannot produce shares, still bootstrapping!")
+      else:
+        thisentry = {}
+        thisentry['sharenumber'] = -1
+        thisentry['salt'] = os.urandom(self.saltsize)
+        saltedpasswordhash = sha256(thisentry['salt'] + password).digest()
+        thisentry['passhash'] = saltedpasswordhash
+        self.accountdict[username].append(thisentry)
+
+        # we will use this to update accounts one bootstrap accounts are finished
+        self.bootstrap_accounts.append(thisentry)
+
+
+    elif shares == 0:
+
       thisentry = {}
       thisentry['sharenumber'] = 0
+
       # get a random salt, salt the password and store the salted hash
       thisentry['salt'] = os.urandom(self.saltsize)
       saltedpasswordhash = sha256(thisentry['salt']+password).digest()
+
       # Encrypt the salted secure hash.   The salt should make all entries
       # unique when encrypted. 
       thisentry['passhash'] = AES.new(self.thresholdlesskey).encrypt(saltedpasswordhash)
+
       # technically, I'm supposed to remove some of the prefix here, but why 
       # bother?
 
-      # append the partial verification data...
+      # append the isolated validation data...
       thisentry['passhash'] += saltedpasswordhash[len(saltedpasswordhash)-self.isolated_check_bits:]
       
       self.accountdict[username].append(thisentry)
       # and exit (don't increment the share count!)
+
       return
     
     for sharenumber in range(self.nextavailableshare, self.nextavailableshare+shares):
@@ -221,7 +246,7 @@ class PolyPasswordHasher(object):
       # XOR the two and keep this.   This effectively hides the hash unless 
       # threshold hashes can be simultaneously decoded
       thisentry['passhash'] = _do_bytearray_XOR(saltedpasswordhash, shamirsecretdata)
-      # append the partial verification data...
+      # append the isolated validation data...
       thisentry['passhash'] += saltedpasswordhash[len(saltedpasswordhash)-self.isolated_check_bits:]
       
 
@@ -237,7 +262,7 @@ class PolyPasswordHasher(object):
     """ Check to see if a login is valid."""
 
     if not self.knownsecret and self.isolated_check_bits == 0:
-      raise ValueError("Password File is not unlocked and partial verification is disabled!")
+      raise ValueError("Still bootstrapping and isolated validation is disabled!")
 
 
     if username not in self.accountdict:
@@ -252,7 +277,11 @@ class PolyPasswordHasher(object):
 
       saltedpasswordhash = sha256(entry['salt']+password).digest()
 
-      # If not unlocked, partial verification needs to be done here!
+      # if this is a bootstrap account...
+      if entry['sharenumber'] == -1:
+          return saltedpasswordhash == entry['passhash']
+
+      # If bootstrapping, isolated validation needs to be done here!
       if not self.knownsecret:
         if saltedpasswordhash[len(saltedpasswordhash)-self.isolated_check_bits:] == entry['passhash'][len(entry['passhash'])-self.isolated_check_bits:]:
           return True
@@ -297,7 +326,7 @@ class PolyPasswordHasher(object):
 
 
     if self.knownsecret:
-      raise ValueError("Password File is already unlocked!")
+      raise ValueError("PPH is already in normal operation!")
 
 
     # Okay, I need to find the shares first and then see if I can recover the
@@ -322,11 +351,18 @@ class PolyPasswordHasher(object):
 
 
         sharelist.append(thisshare)
-
     # This will raise a ValueError if a share is incorrect or there are other
     # issues (like not enough shares).
     self.shamirsecretobj.recover_secretdata(sharelist)
     self.thresholdlesskey = self.shamirsecretobj.secretdata
+
+    for entry in self.bootstrap_accounts:
+        entry['passshash'] = AES.new(self.thresholdlesskey).encrypt(entry['passhash'])
+
+    # we shouldn't have any bootstrap accounts now
+    self.bootstrap_accounts = []
+
+
     # it worked!
     self.knownsecret = True
     

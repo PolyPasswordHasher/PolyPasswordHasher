@@ -47,7 +47,7 @@ try:
 except ValueError:
   pass
 else:
-  print "Can't get here!   It's still locked!!!"
+  print "Can't get here!   It's still bootstrapping!!!"
 
 # with a threshold (or more) of correct passwords, it decodes and is usable.
 pph.unlock_password_data([('admin','correct horse'), ('root','battery staple'), ('bob','puppy'),('dennis','menace')])
@@ -60,11 +60,12 @@ pph.create_account('larry','fish',0)
    
 
 
-##### TEST PARTIAL VERIFICATION
+##### TEST ISOLATED VALIDATION
 
 # require knowledge of 10 shares to decode others.   Create a blank, new
 # password file...
-pph = polypasswordhasher.PolyPasswordHasher(threshold = THRESHOLD, passwordfile = None, isolated_check_bits = 2)
+pph = polypasswordhasher.PolyPasswordHasher(threshold = THRESHOLD, 
+        passwordfile = None, isolated_check_bits = 2)
 
 # create three admins so that any two have the appropriate threshold
 pph.create_account('admin','correct horse',THRESHOLD/2)
@@ -97,7 +98,17 @@ pph = None
 
 
 # let's load it back in
-pph = polypasswordhasher.PolyPasswordHasher(threshold = THRESHOLD,passwordfile = 'securepasswords', isolated_check_bits=2)
+pph = polypasswordhasher.PolyPasswordHasher(threshold = THRESHOLD,
+        passwordfile = 'securepasswords', isolated_check_bits=2)
+
+# create a bootstrap account
+pph.create_account("bootstrapper", 'password', 0)
+try:
+  assert(pph.is_valid_login("bootstrapper",'password') == True)
+  assert(pph.is_valid_login("bootstrapper",'nopassword') == False)
+except ValueError:
+  print("Bootstrap account creation failed.")
+
 
 
 # The password threshold info should be useful now...
@@ -106,15 +117,15 @@ try:
   assert(pph.is_valid_login('admin','correct horse') == True)
   assert(pph.is_valid_login('alice','nyancat!') == False)
 except ValueError:
-  print "Partial verification but it is still locked!!!"
+  print "Isolated validation but it is still bootstrapping!!!"
 
 try:
   pph.create_account('moe','tadpole',1)
 except ValueError:
-  # Should be locked...
+  # Should be bootstrapping...
   pass
 else:
-  print "Partial verification does not allow account creation!"
+  print "Isolated validation does not allow account creation!"
 
 
 
