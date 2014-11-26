@@ -383,8 +383,10 @@ class PolyPasswordHasher(object):
 
     self.thresholdlesskey = self.shamirsecretobj.secretdata
 
+    # update bootstrap accounts to shielded accounts
     for entry in self.bootstrap_accounts:
         entry['passshash'] = AES.new(self.thresholdlesskey).encrypt(entry['passhash'])
+        entry['sharenumber'] = 0
 
     # we shouldn't have any bootstrap accounts now
     self.bootstrap_accounts = []
