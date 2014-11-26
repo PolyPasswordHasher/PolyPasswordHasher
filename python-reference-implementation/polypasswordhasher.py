@@ -254,7 +254,7 @@ class PolyPasswordHasher(object):
       thisentry['salt'] = os.urandom(self.saltsize)
       saltedpasswordhash = sha256(thisentry['salt']+password).digest()
       # XOR the two and keep this.   This effectively hides the hash unless 
-      # threshold hashes can be simultaneously decoded
+      # protector hashes can be simultaneously decoded
       thisentry['passhash'] = _do_bytearray_XOR(saltedpasswordhash, shamirsecretdata)
       # append the isolated validation data...
       thisentry['passhash'] += self.create_isolated_validation_bits(saltedpasswordhash)
