@@ -108,7 +108,7 @@ class PolyPasswordHasher(object):
 
   # ICB iterations and recombination iterations...
   icb_iterations = 1000
-  recombination_iterations = 1000
+  recombination_iterations = 100000
 
   # secret verification routines
   secret_length = 32
