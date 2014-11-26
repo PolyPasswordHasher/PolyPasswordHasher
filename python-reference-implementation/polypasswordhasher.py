@@ -7,7 +7,7 @@
 
 <Description>
   A basic library that demonstrates PolyHash when applied to passwords (see 
-  https://polypasswordhasher.poly.edu/ for details).   This includes thresholdless
+  https://polypasswordhasher.poly.edu/ for details).   This includes shielded
   password support via AES 256.
 
 <Usage>
@@ -76,7 +76,7 @@ __all__ = ['PolyPasswordHasher']
 
 from hashlib import sha256
 
-# For thresholdless password support...
+# For shielded password support...
 from Crypto.Cipher import AES
 
 import fastshamirsecret as shamirsecret
@@ -117,9 +117,9 @@ class PolyPasswordHasher(object):
   # number of bytes of data used for isolated validation...
   isolated_check_bits= 0
 
-  # thresholdless support.   This could be random (and unknown) in the default
+  # shielded support.   This could be random (and unknown) in the default
   # algorithm
-  thresholdlesskey = None
+  shieldedkey = None
 
   # number of used shares.   While I could duplicate shares for normal users,
   # I don't do so in this implementation.   This duplication would allow
@@ -144,10 +144,10 @@ class PolyPasswordHasher(object):
       # since I'll be XORing by the 
       # output of SHA256, I want it to be 256 bits (or 32 bytes) long
       # we add an integrity check at the end of the secret
-      self.thresholdlesskey = self.create_secret()
+      self.shieldedkey = self.create_secret()
 
       # protect this key.   
-      self.shamirsecretobj = shamirsecret.ShamirSecret(threshold, self.thresholdlesskey)
+      self.shamirsecretobj = shamirsecret.ShamirSecret(threshold, self.shieldedkey)
       # I've generated it now, so it is safe to use!
       self.knownsecret = True
       self.nextavailableshare = 1
@@ -156,7 +156,7 @@ class PolyPasswordHasher(object):
     # Okay, they have asked me to load in a password file!
     self.shamirsecretobj = shamirsecret.ShamirSecret(threshold)
     self.knownsecret = False
-    self.thresholdlesskey = None
+    self.shieldedkey = None
 
     # A real implementation would need much better error handling
     passwordfiledata = open(passwordfile).read()
@@ -206,7 +206,7 @@ class PolyPasswordHasher(object):
     # we are bootstrapping, we will create a bootstrap account
     if not self.knownsecret:
         
-      # We can only create thresholdless accounts while bootstrapping
+      # We can only create shielded accounts while bootstrapping
       if shares != 0:
         del self.accountdict[username]
         raise ValueError("Cannot produce shares, still bootstrapping!")
@@ -233,7 +233,7 @@ class PolyPasswordHasher(object):
 
       # Encrypt the salted secure hash.   The salt should make all entries
       # unique when encrypted. 
-      thisentry['passhash'] = AES.new(self.thresholdlesskey).encrypt(saltedpasswordhash)
+      thisentry['passhash'] = AES.new(self.shieldedkey).encrypt(saltedpasswordhash)
 
       # technically, I'm supposed to remove some of the prefix here, but why 
       # bother?
@@ -307,10 +307,10 @@ class PolyPasswordHasher(object):
       else:
         isolated_check = False
 
-      # If a thresholdless account...
+      # If a shielded account...
       if entry['sharenumber'] == 0:
         # return true if the password encrypts the same way...
-        if AES.new(self.thresholdlesskey).encrypt(saltedpasswordhash) == entry['passhash'][:len(entry['passhash'])-self.isolated_check_bits]:
+        if AES.new(self.shieldedkey).encrypt(saltedpasswordhash) == entry['passhash'][:len(entry['passhash'])-self.isolated_check_bits]:
           return True
 
         # or false otherwise
@@ -364,7 +364,7 @@ class PolyPasswordHasher(object):
   
       for entry in self.accountdict[username]:
 
-        # ignore thresholdless account entries...
+        # ignore shielded account entries...
         if entry['sharenumber'] == 0:
           continue
 
@@ -381,11 +381,11 @@ class PolyPasswordHasher(object):
     if not self.verify_secret(self.shamirsecretobj.secretdata):
         raise ValueError("This is not a valid secret recombination, wrong account information provided")
 
-    self.thresholdlesskey = self.shamirsecretobj.secretdata
+    self.shieldedkey = self.shamirsecretobj.secretdata
 
     # update bootstrap accounts to shielded accounts
     for entry in self.bootstrap_accounts:
-        entry['passshash'] = AES.new(self.thresholdlesskey).encrypt(entry['passhash'])
+        entry['passshash'] = AES.new(self.shieldedkey).encrypt(entry['passhash'])
         entry['sharenumber'] = 0
 
     # we shouldn't have any bootstrap accounts now
