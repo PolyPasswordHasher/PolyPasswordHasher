@@ -239,7 +239,7 @@ class PolyPasswordHasher(object):
       # bother?
 
       # append the isolated validation data...
-      thisentry['passhash'] += saltedpasswordhash[len(saltedpasswordhash)-self.isolated_check_bits:]
+      thisentry['passhash'] += self.create_isolated_validation_bits(saltedpasswordhash)
       
       self.accountdict[username].append(thisentry)
       # and exit (don't increment the share count!)
@@ -257,7 +257,7 @@ class PolyPasswordHasher(object):
       # threshold hashes can be simultaneously decoded
       thisentry['passhash'] = _do_bytearray_XOR(saltedpasswordhash, shamirsecretdata)
       # append the isolated validation data...
-      thisentry['passhash'] += saltedpasswordhash[len(saltedpasswordhash)-self.isolated_check_bits:]
+      thisentry['passhash'] += self.create_isolated_validation_bits(saltedpasswordhash)
       
 
       self.accountdict[username].append(thisentry)
@@ -394,8 +394,11 @@ class PolyPasswordHasher(object):
     self.knownsecret = True
 
   def isolated_validation(self, passhash, stored_hash):
-
-    passhash_icb = passhash[len(passhash) - self.isolated_check_bits:]
+    """
+    Compare local icb's with the provided icb to see if the provided
+    password is correct
+    """
+    passhash_icb = self.create_isolated_validation_bits(passhash)
     local_icb = stored_hash[len(stored_hash) - self.isolated_check_bits:]
     return passhash_icb == local_icb
 
@@ -430,24 +433,39 @@ class PolyPasswordHasher(object):
     return secret_digest == original_digest
           
   def create_secret(self):
-      """
-      Returns a random string consisting of 28 bytes of random data
-      and 4 bytes of hash to verify the secret upon recombination
-      """
-      secret_length = self.secret_length
-      verification_len = self.secret_verification_length
-      verification_iterations = self.recombination_iterations
-      
-      secret = os.urandom(secret_length - verification_len)
+    """
+    Returns a random string consisting of 28 bytes of random data
+    and 4 bytes of hash to verify the secret upon recombination
+    """
+    secret_length = self.secret_length
+    verification_len = self.secret_verification_length
+    verification_iterations = self.recombination_iterations
+    
+    secret = os.urandom(secret_length - verification_len)
 
-      secret_digest = sha256(secret).digest()
+    secret_digest = sha256(secret).digest()
 
-      for i in range(1, verification_iterations):
-          secret_digest = sha256(secret_digest).digest()
+    for i in range(1, verification_iterations):
+        secret_digest = sha256(secret_digest).digest()
 
-      
-      secret += secret_digest[:verification_len]
-      return secret
+    
+    secret += secret_digest[:verification_len]
+    return secret
+
+  def create_isolated_validation_bits(self, passhash):
+    """ 
+    Returns the isolated-check bits suffix to add to an existing
+    passhash
+    """
+    icbs = self.isolated_check_bits
+    icb_iterations = self.icb_iterations
+
+    for i in range(1, icb_iterations):
+      passhash = sha256(passhash).digest()
+
+    return passhash[len(passhash)-icbs:]
+
+
    
 
 
