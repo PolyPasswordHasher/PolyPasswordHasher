@@ -112,7 +112,7 @@ class PolyPasswordHasher(object):
 
   # secret verification routines
   secret_length = 32
-  secret_verification_length = 4
+  secret_integrity_check = None
 
   # number of bytes of data used for isolated validation...
   isolated_check_bits= 0
@@ -159,10 +159,11 @@ class PolyPasswordHasher(object):
     self.shieldedkey = None
 
     # A real implementation would need much better error handling
-    passwordfiledata = open(passwordfile).read()
+    passwordfiledata = pickle.load(open(passwordfile))
     
     # just want to deserialize this data.  Should do better validation
-    self.accountdict = pickle.loads(passwordfiledata)
+    self.accountdict = passwordfiledata.accountdict
+    self.secret_integrity_check = passwordfiledata.secret_integrity_check
 
     assert(type(self.accountdict) is dict)
 
@@ -173,7 +174,7 @@ class PolyPasswordHasher(object):
         self.nextavailableshare = max(self.nextavailableshare, share['sharenumber'])
 
     # ...then use the one after when I need a new one.
-    self.nextavailableshare += 1
+    self.nextavailableshare += self.nextavailableshare
 
 
 
@@ -339,7 +340,20 @@ class PolyPasswordHasher(object):
       raise ValueError("Would write undecodable password file.   Must have more shares before writing.")
 
     # Need more error checking in a real implementation
-    open(passwordfile,'w').write(pickle.dumps(self.accountdict))
+    # we will backup important information, set it to None and write the rest
+    secret_backup = self.knownsecret
+    shieldedkey_backup = self.shieldedkey
+    shamirsecretobj_backup = self.shamirsecretobj
+    
+    self.secret = None
+    self.shieldedkey = None
+    self.shamirsecretobj = None
+
+    open(passwordfile,'w').write(pickle.dumps(self))
+
+    self.knownsecret = secret_backup
+    self.shieldedkey = shieldedkey_backup
+    self.shamirsecretobj = shamirsecretobj_backup
       
 
   def unlock_password_data(self, logindata): 
@@ -406,33 +420,20 @@ class PolyPasswordHasher(object):
 
   def verify_secret(self, secret):
     """
-    Checks whether the secret given contains a
-    proper fingerprint with the following form:
-
-    [28 bytes random data][4 bytes hash of random data]
-
-    The length of both fields is configurable through the settings.py
-    file
+    Checks whether the secret matches the stored integrity check
 
     the boolean returned indicates whether it falls under the
     fingerprint or not
     """
     secret_length = self.secret_length
-    verification_len = self.secret_verification_length
     verification_iterations = self.recombination_iterations
 
-    random_data = secret[:secret_length - verification_len]
-
-    secret_digest = sha256(random_data).digest()
+    secret_digest = sha256(secret).digest()
 
     for i in range(1, verification_iterations):
         secret_digest = sha256(secret_digest).digest()
 
-
-    secret_digest = secret_digest[:verification_len]
-    original_digest = secret[len(secret) - verification_len:]
-    
-    return secret_digest == original_digest
+    return secret_digest == self.secret_integrity_check
           
   def create_secret(self):
     """
@@ -440,18 +441,17 @@ class PolyPasswordHasher(object):
     and 4 bytes of hash to verify the secret upon recombination
     """
     secret_length = self.secret_length
-    verification_len = self.secret_verification_length
     verification_iterations = self.recombination_iterations
     
-    secret = os.urandom(secret_length - verification_len)
+    secret = os.urandom(secret_length)
 
     secret_digest = sha256(secret).digest()
 
     for i in range(1, verification_iterations):
         secret_digest = sha256(secret_digest).digest()
+    self.secret_integrity_check = secret_digest
 
     
-    secret += secret_digest[:verification_len]
     return secret
 
   def create_isolated_validation_bits(self, passhash):
