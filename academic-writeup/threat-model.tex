@@ -1,0 +1,43 @@
+\section{Threat Model}
+\label{SEC:threat-model}
+
+We base our threat model on salted hashing, which is the most widely deployed
+protection scheme.  In salted hashing, the user provides a username and
+password to the server.  If a user is locally at the server, this is typically
+done using a keyboard attached to the device.  If a user is remote, the
+password is usually provided over an encrypted channel, such as HTTPS or SSH.
+Either way, the username and password are input to the server in plain-text.   
+
+For a server to employ salted hashing, the only requirement is that there is
+software on the server that implements both salting and hashing.  Notably,
+there are no hardware requirements for the server (e.g., hardware tokens or
+additional servers) and no client software is needed.  
+    
+We assume that:
+
+\begin{itemize}
+
+    \item An attacker can read all data that is persisted on disk, including
+    the password database.  The attacker cannot read arbitrary memory on the
+    server.  As with any scheme that does not require client changes, if an
+    attacker can read arbitrary memory, the attacker can observe the passwords
+    in plain-text. (Fortunately, most reported password database disclosures
+    did not involve an attacker with access to arbitrary memory
+    \cite{miranteTR13, passwordresearchblog}.)
+
+    \item The server will restart periodically. All data kept in memory is lost
+    at this point and the server must restart using only the data on disk -- which
+    is attacker visible. 
+
+    \item The attacker may have a priori knowledge of correct passwords for
+    some user accounts -- for example, on sites that allow outside users to register
+    accounts.
+
+    \item We assume that well known and widely used cryptographic primitives, such as
+    SHA256 and AES, are not breakable by the attacker.
+
+\end{itemize}
+
+Alternative solutions that use this threat model as well as alternative threat models are 
+discussed in Related Work (Section~\ref{SEC:related-work}).
+

@@ -1,33 +1,120 @@
-\section{Implementation}
-\label{sec-implementation}
+\section{Implementation and Limitations}
+\label{SEC:implementation}
+
+Our reference implementation for PolyPasswordHasher is available with an MIT
+license at \showurlx.  It utilizes a 16 byte salt, with SHA256, to compute password
+hashes. The Shamir Secret Sharing routines utilize GF256 as the underlying
+field (by encoding each byte as a separate share).  The code base for
+PolyPasswordHasher is 120 lines of Python code.  This code handles the
+functionality described in Section~\ref{SEC:design}, including support for protector,
+bootstrapping, and \thresholdlessaccounts; reading/writing a database to disk;
+changing passwords; and detecting \partialverification of incorrect passwords.
+PolyPasswordHasher relies on mathematical libraries such as GF256 operations,
+Lagrange interpolation, and polynomial math code -- 391 lines of Python and 83 lines
+of C code.  Additionally, the implementation uses standard python
+libraries for functionalities such as SHA256 and AES.
+
+Several outside developers, unbeknownst to us (until they shared their work
+with us) implemented versions of PolyPasswordHasher in Ruby and PHP.  They
+created their implementations based on our Python reference implementation and
+specification that is available in our GitHub repository.
+Table~\ref{TABLE:source-code} describes these outside PPH implementations.
+Other external developers have uploaded fixes and improvements to our code when
+they wanted it to be compatible with their environment. 
+
+\begin{table}[t]
+    \centering
+    \renewcommand{\arraystretch}{1.3}
+
+    \begin{tabular}{| c | c | c | }
+    \hline
+    {\bf Language } & {\bf Lines of Code} & {\bf Author}\\
+    \hline
+    C & 598 & Local1\\
+    \hline
+    Python & 391 (+83) & Local2\\
+    \hline
+    Django & 786 & Local1 + External1\\
+    \hline
+    Ruby & 437 & External2\\
+    \hline
+    PHP* & N/A  & External3\\
+    \hline
+    \end{tabular}
+    \caption{Different implementations of \PPH for different Languages and Frameworks, the
+    PHP implementation has not been publicly released}
+    \label{TABLE:source-code}
+\end{table}
 
 
-Our reference implementation for PolyPasswordHasher is available with an MIT license 
-at \showurlx.  It utilizes
-a 16 byte salt, with SHA256 to compute password hashes.   The Shamir
-Secret Sharing routines
-utilize GF256 as the underlying field (encoding each byte as a separate
-share).   %The implementation of Shamir Secret Sharing was written while
-%referencing the open source Python {\tt tss} implementation, but was 
-%essentially rewritten to handle the interfaces needed by PolyPasswordHasher.   
-The full code base for PolyPasswordHasher is 203 lines of Python code and
-223 lines of C code\footnote{
-All line of code counts are according to SLOCcount~\cite{wheeler-sloccount}}.   
-PolyPasswordHasher uses Python's standard hashlib for SHA256 and the PyCrypto
-implementation of AES.
-The GF256 operations, Lagrange interpolation, and polynomial math code
-are written in C for performance reasons.   All other code is written in 
-Python.  The main code for PolyPasswordHasher, which handles account
-creation, accessing a persisted store, writing a store to disk,
-checking passwords, and similar operations, is 87 lines of Python code.
-Adding support for thresholdless accounts involved adding 20 lines of Python
-code.   Partial verification added 13 lines of Python code.
-The remaining Python is wrapper code for the C-based 
-Shamir Secret Sharing implementation.
 
-%\url{https://polypasswordhasher.poly.edu/}.   
-%We release the code as open source 
-%under an MIT license.
+\subsection{Handling Alternate Authentication Mechanisms}
+\label{SUBSEC:alternate-authentication-mechanisms}
 
+Passwords are not the only mechanism for logging into modern systems. For
+example, it is common for users to have a private key to log in over ssh,
+biometric-based authentication holds substantial promise, smart cards are often
+used to hide user credentials, and single sign-in systems like OAuth and OpenID
+are commonplace and provided by many major websites. Any practical protection
+mechanism needs to operate in conjunction with such techniques.
+
+Handling non-password logins for shielded user accounts is trivial because
+it requires no changes to the system. These non-password logins can be handled
+using existing login mechanisms, without any modification. 
+
+For \thresholdaccounts, it is possible to view the authentication process as
+decrypting information using a secret that has been stored by a remote party
+(as in fact many such systems are implemented). Essentially, we can encrypt the
+Shamir Secret Share with the user’s key and check that the resulting share is
+correct.  For example, suppose that an administrator has a public/private
+keypair that is used to log in (as is common with SSH private key or smart card
+based authentications).  Instead of XORing the Shamir Share with the salted
+hash of the password, the share can be encrypted with the user’s private key.
+When the administrator presents her public key to login, it decrypts the
+original share. 
+
+Prior work on deriving a private key from (noisy) data [34] is relevant when
+authenticating \thresholdaccounts using other techniques, such as biometrics.
+For example, once a key has been derived from biometric data,
+PolyPasswordHasher will function in a way that is identical to the private key
+authentication scheme discussed in the previous paragraph. 
+
+\subsection{Deployment}
+\label{SUBSEC:deployment}
+
+One key issue with deploying PolyPasswordHasher is deciding which accounts should be protector
+accounts and which should be shielded.  General guidelines include that
+\thresholdaccounts should be assigned to users who choose strong passwords.
+Ideally these are users who will log in soon after a reboot, which will
+minimize the amount of time needed to bootstrap. Although different servers may
+have different use patterns, in our experience, system administrators usually
+meet the above requirements.  We examined logs from servers at our institution
+and found that system administrators typically login a few minutes after a
+system is restarted (likely because they will check the system to make sure it
+is operating correctly).  Based on these practices, system administrators tend
+to be ideal candidates for \thresholdaccounts.
+
+The threshold setting is another important value for deployment.  In our
+experience, a threshold value of 2 - 5 is sufficient, even for systems that
+process thousands of password requests.  As we demonstrate in the evaluation
+section, even a threshold of 2 increases password strength immensely.
+
+Using PolyPasswordHasher results in very minor changes to existing password
+authentication systems. The client tools for password authentication do not
+change in any way. In fact, because PolyPasswordHasher only impacts password
+storage, it is invisible to clients. For administrators, the only change is
+that when an account is created, the administrator can specify whether or not
+an account counts toward the threshold.
+
+The file format for password storage is similar to existing systems. In systems
+that use a database, the share number and isolated-check bits can simply be
+inserted as new columns in the table.  Many servers (such as Linux, Mac, and
+BSD) use the /etc/shadow or /etc/master.password colon delimited formats.  As
+it is used today, the ‘password’ field contains both the salt and hash but
+these different portions of the field are not delineated.  With
+PolyPasswordHasher, additional data (such as the share number and
+isolated-check bits) can also be added at a known position within the
+‘password’ field (e.g., the beginning or end); doing so will lengthen this
+variable length, opaque field.
 
 

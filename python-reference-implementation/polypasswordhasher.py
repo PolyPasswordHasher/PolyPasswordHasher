@@ -7,7 +7,7 @@
 
 <Description>
   A basic library that demonstrates PolyHash when applied to passwords (see 
-  https://polypasswordhasher.poly.edu/ for details).   This includes thresholdless
+  https://polypasswordhasher.poly.edu/ for details).   This includes shielded
   password support via AES 256.
 
 <Usage>
@@ -53,7 +53,7 @@
   except ValueError:
     pass
   else:
-    print "Can't get here!   It's still locked!!!"
+    print "Can't get here!   It's still bootstrapping!!!"
 
   # with a threshold (or more) of correct passwords, it decodes and is usable.
   pph.unlock_password_data([('admin','correct horse'), ('root','battery staple'), ('bob','puppy'),('dennis','menace'])
@@ -76,7 +76,7 @@ __all__ = ['PolyPasswordHasher']
 
 from hashlib import sha256
 
-# For thresholdless password support...
+# For shielded password support...
 from Crypto.Cipher import AES
 
 import fastshamirsecret as shamirsecret
@@ -94,6 +94,7 @@ class PolyPasswordHasher(object):
   # struct) where each dict contains the salt, sharenumber, and
   # passhash (saltedhash XOR shamirsecretshare).   
   accountdict = None
+  bootstrap_accounts = None
 
   # This contains the shamirsecret object for this data store
   shamirsecretobj = None
@@ -105,19 +106,27 @@ class PolyPasswordHasher(object):
   # length of the salt in bytes
   saltsize = 16
 
-  # number of bytes of data used for partial verification...
-  partialbytes = 0
+  # ICB iterations and recombination iterations...
+  icb_iterations = 1000
+  recombination_iterations = 100000
 
-  # thresholdless support.   This could be random (and unknown) in the default
+  # secret verification routines
+  secret_length = 32
+  secret_integrity_check = None
+
+  # number of bytes of data used for isolated validation...
+  isolated_check_bits= 0
+
+  # shielded support.   This could be random (and unknown) in the default
   # algorithm
-  thresholdlesskey = None
+  shieldedkey = None
 
   # number of used shares.   While I could duplicate shares for normal users,
   # I don't do so in this implementation.   This duplication would allow
   # co-analysis of password hashes
   nextavailableshare = None
 
-  def __init__(self, threshold, passwordfile = None, partialbytes = 0):
+  def __init__(self, threshold, passwordfile = None, isolated_check_bits = 0):
     """Initialize a new (empty) object with the threshold.   I could store
        the threshold in the file, but don't do this currently.   I just assume
        it's known to the program"""
@@ -125,17 +134,20 @@ class PolyPasswordHasher(object):
     self.threshold = threshold
 
     self.accountdict = {}
+    self.bootstrap_accounts = []
 
-    self.partialbytes = partialbytes
+    self.isolated_check_bits = isolated_check_bits
 
     # creating a new password file
     if passwordfile is None:
       # generate a 256 bit key for AES.   I need 256 bits anyways 
       # since I'll be XORing by the 
       # output of SHA256, I want it to be 256 bits (or 32 bytes) long
-      self.thresholdlesskey = os.urandom(32)
+      # we add an integrity check at the end of the secret
+      self.shieldedkey = self.create_secret()
+
       # protect this key.   
-      self.shamirsecretobj = shamirsecret.ShamirSecret(threshold, self.thresholdlesskey)
+      self.shamirsecretobj = shamirsecret.ShamirSecret(threshold, self.shieldedkey)
       # I've generated it now, so it is safe to use!
       self.knownsecret = True
       self.nextavailableshare = 1
@@ -144,13 +156,14 @@ class PolyPasswordHasher(object):
     # Okay, they have asked me to load in a password file!
     self.shamirsecretobj = shamirsecret.ShamirSecret(threshold)
     self.knownsecret = False
-    self.thresholdlesskey = None
+    self.shieldedkey = None
 
     # A real implementation would need much better error handling
-    passwordfiledata = open(passwordfile).read()
+    passwordfiledata = pickle.load(open(passwordfile))
     
     # just want to deserialize this data.  Should do better validation
-    self.accountdict = pickle.loads(passwordfiledata)
+    self.accountdict = passwordfiledata.accountdict
+    self.secret_integrity_check = passwordfiledata.secret_integrity_check
 
     assert(type(self.accountdict) is dict)
 
@@ -161,7 +174,7 @@ class PolyPasswordHasher(object):
         self.nextavailableshare = max(self.nextavailableshare, share['sharenumber'])
 
     # ...then use the one after when I need a new one.
-    self.nextavailableshare += 1
+    self.nextavailableshare += self.nextavailableshare
 
 
 
@@ -172,8 +185,7 @@ class PolyPasswordHasher(object):
     """Create a new account.  Raises a ValueError if given bad data or if the
        system isn't initialized"""
 
-    if not self.knownsecret:
-      raise ValueError("Password File is not unlocked!")
+      
 
     if username in self.accountdict:
       raise ValueError("Username exists already!")
@@ -192,23 +204,47 @@ class PolyPasswordHasher(object):
     # for each share, we will add the appropriate dictionary.
     self.accountdict[username] = []
 
-    if shares == 0:
+    # we are bootstrapping, we will create a bootstrap account
+    if not self.knownsecret:
+        
+      # We can only create shielded accounts while bootstrapping
+      if shares != 0:
+        del self.accountdict[username]
+        raise ValueError("Cannot produce shares, still bootstrapping!")
+      else:
+        thisentry = {}
+        thisentry['sharenumber'] = -1
+        thisentry['salt'] = os.urandom(self.saltsize)
+        saltedpasswordhash = sha256(thisentry['salt'] + password).digest()
+        thisentry['passhash'] = saltedpasswordhash
+        self.accountdict[username].append(thisentry)
+
+        # we will use this to update accounts one bootstrap accounts are finished
+        self.bootstrap_accounts.append(thisentry)
+
+
+    elif shares == 0:
+
       thisentry = {}
       thisentry['sharenumber'] = 0
+
       # get a random salt, salt the password and store the salted hash
       thisentry['salt'] = os.urandom(self.saltsize)
       saltedpasswordhash = sha256(thisentry['salt']+password).digest()
+
       # Encrypt the salted secure hash.   The salt should make all entries
       # unique when encrypted. 
-      thisentry['passhash'] = AES.new(self.thresholdlesskey).encrypt(saltedpasswordhash)
+      thisentry['passhash'] = AES.new(self.shieldedkey).encrypt(saltedpasswordhash)
+
       # technically, I'm supposed to remove some of the prefix here, but why 
       # bother?
 
-      # append the partial verification data...
-      thisentry['passhash'] += saltedpasswordhash[len(saltedpasswordhash)-self.partialbytes:]
+      # append the isolated validation data...
+      thisentry['passhash'] += self.create_isolated_validation_bits(saltedpasswordhash)
       
       self.accountdict[username].append(thisentry)
       # and exit (don't increment the share count!)
+
       return
     
     for sharenumber in range(self.nextavailableshare, self.nextavailableshare+shares):
@@ -219,10 +255,10 @@ class PolyPasswordHasher(object):
       thisentry['salt'] = os.urandom(self.saltsize)
       saltedpasswordhash = sha256(thisentry['salt']+password).digest()
       # XOR the two and keep this.   This effectively hides the hash unless 
-      # threshold hashes can be simultaneously decoded
+      # protector hashes can be simultaneously decoded
       thisentry['passhash'] = _do_bytearray_XOR(saltedpasswordhash, shamirsecretdata)
-      # append the partial verification data...
-      thisentry['passhash'] += saltedpasswordhash[len(saltedpasswordhash)-self.partialbytes:]
+      # append the isolated validation data...
+      thisentry['passhash'] += self.create_isolated_validation_bits(saltedpasswordhash)
       
 
       self.accountdict[username].append(thisentry)
@@ -236,8 +272,8 @@ class PolyPasswordHasher(object):
   def is_valid_login(self,username,password):
     """ Check to see if a login is valid."""
 
-    if not self.knownsecret and self.partialbytes == 0:
-      raise ValueError("Password File is not unlocked and partial verification is disabled!")
+    if not self.knownsecret and self.isolated_check_bits == 0:
+      raise ValueError("Still bootstrapping and isolated validation is disabled!")
 
 
     if username not in self.accountdict:
@@ -252,23 +288,35 @@ class PolyPasswordHasher(object):
 
       saltedpasswordhash = sha256(entry['salt']+password).digest()
 
-      # If not unlocked, partial verification needs to be done here!
+      # if this is a bootstrap account...
+      if entry['sharenumber'] == -1:
+          return saltedpasswordhash == entry['passhash']
+
+      # If bootstrapping, isolated validation needs to be done here!
       if not self.knownsecret:
-        if saltedpasswordhash[len(saltedpasswordhash)-self.partialbytes:] == entry['passhash'][len(entry['passhash'])-self.partialbytes:]:
+#        if saltedpasswordhash[len(saltedpasswordhash)-self.isolated_check_bits:] == entry['passhash'][len(entry['passhash'])-self.isolated_check_bits:]:
+        if self.isolated_validation(saltedpasswordhash, entry['passhash']):
           return True
         else:
           return False
 
       # XOR to remove the salted hash from the password
-      sharedata = _do_bytearray_XOR(saltedpasswordhash, entry['passhash'][:len(entry['passhash'])-self.partialbytes])
+      sharedata = _do_bytearray_XOR(saltedpasswordhash, entry['passhash'][:len(entry['passhash'])-self.isolated_check_bits])
+        
+      if self.isolated_check_bits > 0:
+        isolated_check = self.isolated_validation(saltedpasswordhash, entry['passhash'])
+      else:
+        isolated_check = False
 
-
-      # If a thresholdless account...
+      # If a shielded account...
       if entry['sharenumber'] == 0:
         # return true if the password encrypts the same way...
-        if AES.new(self.thresholdlesskey).encrypt(saltedpasswordhash) == entry['passhash'][:len(entry['passhash'])-self.partialbytes]:
+        if AES.new(self.shieldedkey).encrypt(saltedpasswordhash) == entry['passhash'][:len(entry['passhash'])-self.isolated_check_bits]:
           return True
+
         # or false otherwise
+        if isolated_check:
+            print("Isolated check matches but full hash doesn't, this might be a break-in!")
         return False
 
 
@@ -276,7 +324,13 @@ class PolyPasswordHasher(object):
       share = (entry['sharenumber'],sharedata)
 
       # If a normal share, return T/F depending on if this share is valid.
-      return self.shamirsecretobj.is_valid_share(share)
+      if self.shamirsecretobj.is_valid_share(share):
+          return True
+    
+      if isolated_check:
+          print("Isolated check matches but full hash doesn't, this might be a break-in!")
+
+      return False
       
 
 
@@ -286,7 +340,20 @@ class PolyPasswordHasher(object):
       raise ValueError("Would write undecodable password file.   Must have more shares before writing.")
 
     # Need more error checking in a real implementation
-    open(passwordfile,'w').write(pickle.dumps(self.accountdict))
+    # we will backup important information, set it to None and write the rest
+    secret_backup = self.knownsecret
+    shieldedkey_backup = self.shieldedkey
+    shamirsecretobj_backup = self.shamirsecretobj
+    
+    self.secret = None
+    self.shieldedkey = None
+    self.shamirsecretobj = None
+
+    open(passwordfile,'w').write(pickle.dumps(self))
+
+    self.knownsecret = secret_backup
+    self.shieldedkey = shieldedkey_backup
+    self.shamirsecretobj = shamirsecretobj_backup
       
 
   def unlock_password_data(self, logindata): 
@@ -297,7 +364,7 @@ class PolyPasswordHasher(object):
 
 
     if self.knownsecret:
-      raise ValueError("Password File is already unlocked!")
+      raise ValueError("PPH is already in normal operation!")
 
 
     # Okay, I need to find the shares first and then see if I can recover the
@@ -311,23 +378,97 @@ class PolyPasswordHasher(object):
   
       for entry in self.accountdict[username]:
 
-        # ignore thresholdless account entries...
+        # ignore shielded account entries...
         if entry['sharenumber'] == 0:
           continue
 
         thissaltedpasswordhash = sha256(entry['salt']+password).digest()
-        thisshare = (entry['sharenumber'], _do_bytearray_XOR(thissaltedpasswordhash, entry['passhash'][:len(entry['passhash'])-self.partialbytes]))
+        thisshare = (entry['sharenumber'],
+            _do_bytearray_XOR(thissaltedpasswordhash, 
+                entry['passhash'][:len(entry['passhash'])-self.isolated_check_bits]))
 
 
         sharelist.append(thisshare)
-
     # This will raise a ValueError if a share is incorrect or there are other
     # issues (like not enough shares).
     self.shamirsecretobj.recover_secretdata(sharelist)
-    self.thresholdlesskey = self.shamirsecretobj.secretdata
+    if not self.verify_secret(self.shamirsecretobj.secretdata):
+        raise ValueError("This is not a valid secret recombination, wrong account information provided")
+
+    self.shieldedkey = self.shamirsecretobj.secretdata
+
+    # update bootstrap accounts to shielded accounts
+    for entry in self.bootstrap_accounts:
+        entry['passshash'] = AES.new(self.shieldedkey).encrypt(entry['passhash'])
+        entry['sharenumber'] = 0
+
+    # we shouldn't have any bootstrap accounts now
+    self.bootstrap_accounts = []
+
+
     # it worked!
     self.knownsecret = True
+
+  def isolated_validation(self, passhash, stored_hash):
+    """
+    Compare local icb's with the provided icb to see if the provided
+    password is correct
+    """
+    passhash_icb = self.create_isolated_validation_bits(passhash)
+    local_icb = stored_hash[len(stored_hash) - self.isolated_check_bits:]
+    return passhash_icb == local_icb
+
+  def verify_secret(self, secret):
+    """
+    Checks whether the secret matches the stored integrity check
+
+    the boolean returned indicates whether it falls under the
+    fingerprint or not
+    """
+    secret_length = self.secret_length
+    verification_iterations = self.recombination_iterations
+
+    secret_digest = sha256(secret).digest()
+
+    for i in range(1, verification_iterations):
+        secret_digest = sha256(secret_digest).digest()
+
+    return secret_digest == self.secret_integrity_check
+          
+  def create_secret(self):
+    """
+    Returns a random string consisting of 28 bytes of random data
+    and 4 bytes of hash to verify the secret upon recombination
+    """
+    secret_length = self.secret_length
+    verification_iterations = self.recombination_iterations
     
+    secret = os.urandom(secret_length)
+
+    secret_digest = sha256(secret).digest()
+
+    for i in range(1, verification_iterations):
+        secret_digest = sha256(secret_digest).digest()
+    self.secret_integrity_check = secret_digest
+
+    
+    return secret
+
+  def create_isolated_validation_bits(self, passhash):
+    """ 
+    Returns the isolated-check bits suffix to add to an existing
+    passhash
+    """
+    icbs = self.isolated_check_bits
+    icb_iterations = self.icb_iterations
+
+    for i in range(1, icb_iterations):
+      passhash = sha256(passhash).digest()
+
+    return passhash[len(passhash)-icbs:]
+
+
+   
 
 
 #### Private helper...

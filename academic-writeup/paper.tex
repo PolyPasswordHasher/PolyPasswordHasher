@@ -1,5 +1,4 @@
-\documentclass[letterpaper,twocolumn,10pt]{article}
-\usepackage{usenix,epsfig,endnotes}
+\documentclass[10pt, conference, letter]{IEEEtran}
 \usepackage[hyphens]{url}
 \usepackage[usenames,dvipsnames]{color}
 \usepackage{comment}
@@ -17,6 +16,8 @@
 \usepackage[normalem]{ulem}
 \usepackage{xspace}
 \usepackage{datetime}
+
+\usepackage{graphicx}
 
 %%%%%%%%%% verbatim related
 \usepackage{fancyvrb}
@@ -42,7 +43,7 @@
 % float control
 \renewcommand{\topfraction}{0.9}
 
-\usepackage[small,compact]{titlesec}
+% \usepackage[small,compact]{titlesec}
 
 % \usepackage{savetrees}
 
@@ -65,8 +66,8 @@
   pdftitle = {PolyPasswordHasher: Protecting Passwords In The Event Of A Password 
 File Disclosure},
   pdfkeywords = {},
-  pdfauthor = { Justin Cappos},
-%  pdfauthor = { Names removed for anonymous submission},
+ % pdfauthor = { Justin Cappos},
+  pdfauthor = { Names removed for anonymous submission},
   bookmarksnumbered,
   bookmarksopen=true,
   colorlinks=true,
@@ -79,30 +80,31 @@ File Disclosure},
 
 %%%%%%%%%%%%%%%%%%
 % COMMENT OUT NEXT LINE TO HIDE TODOs
-%\revtrue
+\revtrue
 %%%%%%%%%%%%%%%%%%
 
 \ifrev
   \newcommand{\directions}[1]{{#1}}
-  \newcommand{\yanyan}[1]{{\color{blue} [Yanyan: #1]}}
+  \newcommand{\santiago}[1]{{\color{blue} [Santiago: #1]}}
   \newcommand{\cappos}[1]{{\color{red} [Justin: #1]}}
-  \newcommand{\ivan}[1]{{\color{cyan} [Ivan: #1]}}
-  \newcommand{\todo}[1]{{\color{red} [todo: #1]}}
+  \newcommand{\linda}[1]{{\color{cyan} [Linda: #1]}}
+  \newcommand{\todo}[1]{{\color{red} [TODO: #1]}}
 \else
-  \newcommand{\yanyan}[1]{}
+  \newcommand{\santiago}[1]{}
   \newcommand{\cappos}[1]{}
-  \newcommand{\ivan}[1]{}
+  \newcommand{\linda}[1]{}
   \newcommand{\todo}[1]{}
 \fi
 
 \newcommand{\eat}[1]{}
 \newcolumntype{m}[1]{>{\centering\arraybackslash\hspace{0pt}}p{#1}}
+\renewcommand\arraystretch{1.5} % so exponents fit inside a table
 \newcommand{\bigO}[1]{\ensuremath{\operatorname{O}\bigl(#1\bigr)}}
 \newcommand\vit[1]{\textit{#1}}
 % \renewcommand{\theFancyVerbLine}{\textsuperscript{\arabic{FancyVerbLine}}}
 % big-O notation/symbol
 
-\newcommand{\sysname}{NetCheck\xspace}
+% \newcommand{\sysname}{NetCheck\xspace}
 \newcommand{\mysup}[1]{\textsubscript{#1}}
 \newcommand{\order}{\textit{OrderingAlg}\xspace}
 \newcommand{\Order}{\textit{Trace-ordering}\xspace}
@@ -147,6 +149,24 @@ File Disclosure},
 
 \newcommand*\samethanks[1][\value{footnote}]{\footnotemark[#1]}
 
+%some useful macros
+\newcommand\PPH{PolyPasswordHasher\xspace}
+\newcommand\partialbytes{isolated-check bits\xspace}
+\newcommand\Partialbytes{Isolated-check bits\xspace}
+\newcommand\thresholdaccount{protector account\xspace}
+\newcommand\thresholdaccounts{protector accounts\xspace}
+\newcommand\Thresholdaccount{Protector account\xspace}
+\newcommand\Thresholdaccounts{Protector accounts\xspace}
+\newcommand\thresholdlessaccount{shielded account\xspace}
+\newcommand\thresholdlessaccounts{shielded accounts\xspace}
+\newcommand\Thresholdlessaccount{Shielded account\xspace}
+\newcommand\Thresholdlessaccounts{Shielded accounts\xspace}
+\newcommand\partialverification{isolated validation\xspace}
+\newcommand\Partialverification{Isolated validation\xspace}
+\newcommand\partialverifications{isolated validations\xspace}
+\newcommand\THRESHOLDLESS{SHIELDED\xspace}
+\newcommand\sxh{share$\oplus$hash\xspace}
+
 \begin{document}
 
 \date{}
@@ -160,9 +180,13 @@ Disclosure}
 %\newcommand{\showurlx}{[redacted]}
 
 \author{
-{\rm Justin Cappos}\\
-New York University\\
-jcappos@nyu.edu
+ \IEEEauthorblockN{Justin Cappos}\\
+ New York University\\
+ jcappos@nyu.edu
+ \and
+ \IEEEauthorblockN{Santiago Torres}\\
+ New York University\\
+ santiago@nyu.edu
 %Author names removed for anonymous submission
 % copy the following lines to add more authors
 % \and
@@ -178,37 +202,20 @@ jcappos@nyu.edu
 
 \input{abstract}
 \input{introduction}
-
-\input{threatmodel}
-
+\input{threat-model}
 \input{background}
-
-\input{polyhashing}
-
-\input{polypasswordhasher}
-
-\input{extensions}
-
-\input{expecteduse}
-
+\input{design}
 \input{implementation}
-
-\input{results}
-
-\input{related}
-
-%\input{discussion}
-
+\input{evaluation}
+\input{related-work}
 \input{conclusion}
-
-\input{acknowledgements}
-
 
 
 \dmyyyydate
-{\footnotesize \bibliographystyle{acm}
-\bibliography{bibdata}}
-
+%   {\footnotesize \bibliographystyle{acm}
+%   \bibliography{bibdata}}
+\bibliographystyle{IEEEtran}
+\bibliography{IEEEabrv,bibdata}
 % \theendnotes
 
 \end{document}
