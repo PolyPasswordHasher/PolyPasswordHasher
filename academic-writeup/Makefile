@@ -9,19 +9,16 @@ pdf-missing-graphics: $(PAPER).pdf-without-pdflatex
 dvi: $(PAPER).dvi
 
 SECTIONS = \
-	acknowledgements.tex \
 	abstract.tex \
-	polyhashing.tex \
-	polypasswordhasher.tex \
-	threatmodel.tex \
-	background.tex \
-	extensions.tex \
 	introduction.tex \
+	threat-model.tex \
+	background.tex \
+	design.tex \
 	implementation.tex \
-	results.tex \
+	evaluation.tex \
+ 	related-work.tex \
 	conclusion.tex \
-	related.tex \
-	expecteduse.tex
+	
 
 TEXT =  $(SECTIONS) 
 

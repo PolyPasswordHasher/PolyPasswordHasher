@@ -1,45 +1,27 @@
 \section{Conclusion}
-\label{sec-conclusion}
+\label{SEC:conclusion}
 
-This work addresses an important problem in the security community by 
-protecting user passwords in the event of password file disclosure.   
-Previously an attacker that obtained a salted and hashed password file could 
-easily crack passwords one at a time.   Now,
-assuming the attacker must have access to a threshold of passwords to 
-crack individual passwords.  As a result,
-password cracking requires exponentially more work for the attacker and
-is infeasible in many cases.
+This work presents \PPH, a technique for protecting user passwords in the 
+event of password database disclosure. \PPH is the first technique
+that requires only software changes on the server and yet requires
+attackers to do asymmetrically more work to crack passwords than
+servers need to do to verify them.  As a result, password
+cracking becomes infeasible for attackers in many cases.
 
-Our implementation of PolyPasswordHasher demonstrates that the storage and
-performance properties are similar to systems that are widely used in practice.
-PolyPasswordHasher integrates naturally with alternative authentication 
-mechanisms, tools, and techniques.
-In on-going work, we are deploying PolyPasswordHasher %in production 
-%use 
-in several domains including a production web service used by thousands
-of users and a cloud computing infrastructure.   
-%Our future work will involve studying any
-%usability concerns that arise from PolyPasswordHasher's adoption.
 
-Our reference implementation is available with an MIT license at:
-\showurlx.
-%\url{https://polypasswordhasher.poly.edu}.   
+\PPH is practical to deploy and is effective in practice.  The performance
+of \PPH is similar to salted hashing.  The memory and storage costs from
+using \PPH are negligible.  So long as good password selection procedures
+are followed, \thresholdaccounts increase an attacker's cracking effort by
+many orders of magnitude.  We show how configuring \partialverification
+in different ways can help to optimize \PPH for different configurations
+of services.
 
-\cappos{Future Work: partially rotate share coverage after unlock to 
-minimize attack effectiveness after reboot.
+We have installed \PPH at our institution and are gaining practical
+experience to uncover any usability problems.  Five different parties, 
+two of whom had no prior contact with us, authored an implementation
+of \PPH.  There are implementations for a variety of languages and 
+web frameworks available with an MIT license at:
+\showurlx. 
 
-Future Work: Use variable quanta shares to incrementally protect more data.}
-%\subsection{Future Work}
-%
-%
-%In our on-going work, we are extending upPIR to better mask file sizes, 
-%especially for large updates.   We are exploring different algorithms
-%that the vendor may use to pack content into a release.
-%We are also extending upPIR
-%to recover gracefully from mirrors that serve bogus content.   Our efforts
-%also include applying upPIR more broadly than software updates.
-%
-%We also are pursuing an open standard for upPIR communications to ensure
-%interoperation between different client, mirror, and vendor tracker 
-%implementations.
 

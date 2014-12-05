@@ -1,0 +1,293 @@
+\section{Related Work}
+\label{SEC:related-work}
+
+Given the ubiquity of passwords, password security has become an important
+research area in both academia and industry. Hackers have also found password
+databases enticing and have devoted time and resources to figuring out new
+strategies for gaining access to passwords and associated user identities.
+Hackers’ persistence in developing ever more sophisticated cracking strategies
+has in turn focused researchers, who have come up with many promising solutions
+that each solve different portions of the problem.
+
+In this section, we categorize related work according to their requirements
+for deployment. Solutions that 
+use additional server hardware or servers require effort to deploy but tend 
+to present very strong protection.  Changes that involve the client also
+require effort to deploy (on clients), but in many cases are also very
+effective at protecting user information. There are relatively
+few solutions that only require changes on the server side and are software
+only.  However, these solutions, like salted hashing and key stretching,
+tend to be very widely deployed.  \PPH is the first solution of this
+type that increases attackers' cracking effort asymmetrically more
+than the increase to the server's verification time.
+%\begin{itemize}
+%    \item Assumes the attacker can read all persistent storage
+%
+%    \item Requires only a software change on the server
+%
+%    \item Requires exponentially more time for the attacker to be able to crack
+%    passwords
+%
+%\end{itemize}
+%
+%In this subsection, we enumerate different password storage mechanisms organized
+%by their threat model and how it relates to the threat model of \PPH.
+%
+%\linda{LV: I think there needs to be some sort of lead in to the rest of this
+%section -- most likely would be to set up organizing this section around threat
+%models...}
+
+\eat{
+\begin{table}[b]
+
+    \centering
+    \renewcommand{\arraystretch}{1.3}
+    \caption{Different authentication mechanisms and their security features}
+    \label{TABLE:authentication-technologies}
+
+    \centering
+    \begin{tabular}{| c | c | c | c |}
+    \hline
+    {\bf Auth.} & {\bf Changes to} & {\bf Extra} & {\bf Memory} \\
+    {\bf mechanism} & {\bf client} & {\bf Hardware} & {\bf safe} \\
+    \hline
+    Multi-server & No & Yes & N/A \\
+    \hline
+    Decoys & No & Yes & No \\
+    \hline
+    Key Stretching & No & No & No \\
+    \hline 
+    Biometrics &  Yes & Yes & No/Yes \\
+    \hline
+    \end{tabular}
+\end{table}
+}
+
+\subsection{Systems that Require Extra Servers or Server-side Hardware}
+
+{\bf Multi-server Password Authentication.} A wide variety of
+authentication schemes use multiple servers to store password
+data~\cite{Chai20071046, bagherzandi2011password, katz2005two}. The assumption
+is that an attacker cannot compromise a threshold of the servers. In contrast,
+\PPH uses a threshold system to hide information in memory on a single server 
+that can only be unlocked with a threshold of correct user passwords.
+
+Prior work by Gwoboa~\cite{gwoboa1995password} hides passwords using
+a trapdoor function (public key cryptography) and techniques from threshold
+cryptography.   It can authenticate users with two hidden pieces of 
+information, a user ID (likely not the user name, for security reasons) and 
+the password.   However, a major concern of the scheme is how the private
+key is stored on the server.   The authors propose splitting it amongst 
+multiple systems and using threshold cryptography.   %Clearly if all 
+%persisted data is known, this key (and thus all passwords) are at risk.
+%In \PPH, as long as a threshold of passwords are not known, all 
+%persisted data can be stolen by an attacker without compromising user 
+%passwords.
+
+
+{\bf Decoys.}  Recently, researchers have suggested an array of techniques
+that employ sets of extra password entries~\cite{Kontaxis_CCS_2013,
+juels2013honeywords}.  For example, the
+Honeywords~\cite{juels2013honeywords}system uses a separate server to hold
+information that authenticates the correct password entry. Once attackers
+obtain a password database they do not know which password entry is correct.
+Entering a password that matches a hash to the wrong password entry will
+trigger an alarm that notifies the administrator that there has been a password
+hash file breach.  However, for this to work, there must be a separate, secure
+server to authenticate the index of that entry (a one byte value).  An 
+important attribute of HoneyWords is that it can also operate when the 
+server is offline and will check passwords and detect breaches when the 
+server comes back online.  
+This is similar to the way that accounts validated during bootstrapping in
+\PPH are re-validated after a threshold of \thresholdaccount passwords are
+provided.
+
+{\bf Using a hardware database encryption key.} Storing a key in trusted
+hardware (such as a USB dongle~\cite{passwordhardwaredongle}) has security benefits, but also has
+deployment challenges. If the hardware stops working, the protected
+data is likely to be irrevocably lost. To have backup servers, it is essential
+to have identical duplicate copies of the secure token. This complicates use in
+scenarios like cloud computing or even just a standard master / slave
+deployment. %On the other hand, \PPH is entirely software based
+%and a backup system can be brought online in the same way that a normal server
+%boots.  \cappos{integrate into above}\santiago{Maybe it doesn't fit here
+%anymore}
+
+
+{\bf Bounded Attacker.} Di Crescenzo~\cite{di2006perfectly} proposed a
+scheme for protecting password data when an attacker can only read a bounded
+amount of data from storage.   This entails that an organization configure
+network monitoring hardware and set up a separate server to process
+authentication requests.  %In the widely published password file compromises,
+%the attackers were able to steal complete password file
+%data~\cite{miranteTR13,passwordresearchblog}.   In contrast, \PPH
+%requires no network changes or monitoring and works even when an attacker has
+%complete access to stored information, such as a disk backup.
+This may pose a deployment challenge for some organizations.
+
+{\bf Single Sign-On.} Single sign-on systems such as OpenID and OAuth have
+promise for organizations to securely offload authentication to a third party.
+This is convenient for users, but is far from ubiquitous for a variety of
+reasons~\cite{sun2010billion}. Single sign-on systems have known security
+issues~\cite{openidsecurity, oauthsecurity}, but overall can be effective 
+when properly used. \PPH integrates cleanly with such systems
+and can trivially allow \thresholdlessaccounts to verify with them. In 
+addition, \PPH could be used by a Single Sign-On
+provider to securely store its password database.
+
+
+
+\subsection{Systems That Require Client Side Changes}
+
+{\bf Biometrics.} Biometric authentication is a promising field for secure
+password authentication~\cite{atallah2005secure, snelick2005large,
+tuyls2004capacity, boyen2005secure, erkin2009privacy, kerschbaum2004private,
+osadchy2010scifi, monrose2001cryptographic, sae2012biometric}, with a
+substantial amount of work already done on how to store and authenticate users
+with biometric information. Like \PPH, some of these approaches
+use a threshold system to validate and authenticate users, in part to deal with
+noisy biometric data~\cite{juels2006fuzzy, ballard2008practical}.  Although
+\PPH also requires users to remember a password, it does not
+require client-side hardware.  Moreover, prior work uses keystroke dynamics to
+change stored password data~\cite{monrose2000keystroke} and relies on reading timing information
+as users type their passwords during login. This method of analyzing
+timing of keystrokes 
+provides promising protections, but requires changes to the client and server
+to correctly operate. 
+%In comparison, \PPH protects password hash
+%information with no changes to the client and minimal server changes.
+
+{\bf Authentication Using Tokens or Smart Cards.} Much investigation has
+looked at authentication systems. These systems, which use
+hardware tokens, are popular in banking~\cite{deo1998authentication,
+yeh2010two}, health services~\cite{ahn2002towards}, as well as in more general
+contexts~\cite{chien2002efficient, yang1999password}. These systems are
+extremely effective and are widely used to limit and protect access to
+classified systems, often by integrating a threshold cryptosystem to provide
+multifactor authentication using hardware tokens~\cite{brush2014pico, yubikeyhardware}.
+There are even client devices that one can use either as a primary
+authentication source or as a second factor of authentication.
+
+
+%Unfortunately, these devices incur a per-user cost and are not widely
+%deployed yet.
+%thus are not often used in contexts where the
+%user and server have no prior commercial or authentication relationship. In
+%contrast, \PPH can be used in webmail systems and social networks
+%where this relationship does not exist a priori -- a running system with regular
+%salted-hash storage can easily upgrade to \PPH without affecting
+%a user’s login procedure in any way.
+
+{\bf Password Managers.} There are a myriad of password managers that help
+users choose and manage secure per-site passwords including LastPass,
+1Password, and OnePass. These systems store password data and lock it with the
+user's credentials. However, these third party software  (and often their
+servers) will know users' passwords, which opens the door to potential
+misuse.  To mitigate this, several groups have proposed cryptographic
+techniques that will similarly take a user's password and generate secure, per
+site passwords~\cite{halderman2009lest,ross2005stronger,
+halderman2005convenient}. These techniques are effective (and more secure) but
+can create passwords that are incompatible with a server's password policy.
+Password manager tools require client-side changes or support, whereas
+\PPH requires server-side changes only. Both can be used in
+conjunction safely for improved security.
+
+{\bf Multiparty Computational Authentication.} There are a variety of
+schemes that perform secure, remote authentication using computation by the
+client and server on legacy hardware~\cite{wu1998secure, Lomas_SOSP_89,
+chien2001modified, jan1998paramita, gong1995optimal,
+camenisch2010credential, brainard2003nightingale, katz2001efficient,
+katz2003forward, gong1993protecting}. These schemes have significant, positive
+aspects such as (in some cases) requiring an attacker to be online to validate
+communications. However, they require multiparty protocols that require changes
+on clients and servers. %They also do not function in non-distributed scenarios.
+%\PPH works with no changes to clients, minimal visible changes to
+%the administrator, and operates on a single system.
+
+{\bf Non-password Authentication.} Many researchers have proposed
+authentication based upon non-password items such as
+pictures~\cite{dhamija2000deja}. In practice, these systems can face security
+limitations if users do not appropriately choose their authentication
+tokens~\cite{davis2004user}.  Used with these authentication mechanisms, 
+\PPH functions well
+for \thresholdlessaccounts, requiring no changes to the system.  However, 
+unless a key or hash can be derived from such mechanisms, it may not
+be possible to use them to recover a \thresholdaccount's share.
+
+
+{\bf Key Exchange Schemes.} There are also many systems that
+implement secure key exchange~\cite{shoup1999formal}, such as Password
+Authenticated Key Exchange (PAKE)~\cite{boyko2000provably,
+shen2010towards,sathik2010secret, jablon1996strong}, Encrypted Key Exchange
+(EKE)~\cite{steiner1995refinement, lucks1998open, jablon1997extended}, and
+further enhancements~\cite{wang2005strengthening}. These systems allow parties
+who share a password to securely find an encryption key to hide their
+communications. These systems provide excellent protection and can handle
+compromises to a system's memory, in many cases. However, unlike
+\PPH, they typically involve multi-round authentications and
+require changes to both the client and server.
+
+{\bf Helping Users Choose Stronger Passwords.} There have been many
+efforts to help users choose stronger, more memorable passwords and understand
+what constitutes a weak
+password~\cite{topkara2007passwords,klein1990foiling,bishop1995improving,
+schechter2010popularity, komanduri2011passwords, shay2010encountering,
+xkcdpassword}. Such efforts could be quite effective in protecting users, but
+users will need to adopt new password habits and strategies.
+%\PPH provides an exponential improvement in protection for user
+%passwords.  
+We leverage studies by~\cite{weir2010passwordpolicies, cormac2007passwordhabits,
+cormac2014telepathwords, kelley2012guessingpasswords} to understand how
+to add policies that improve entropy in \thresholdaccount passwords.
+
+{\bf Two-Factor Authentication.} The use of two-factor
+authentication~\cite{di2005two} is provided by some popular services (typically
+through an SMS or phone call).  Two-factor authentication does not change
+\PPH's use in any way.  Users can easily get the best of both
+protections with simultaneous deployment of each technology.
+
+\subsection{Server-Side, Software-Only}
+
+These mechanisms fall directly into the same threat model as \PPH. 
+
+
+{\bf Key Stretching.} One way to mitigate the effectiveness of cracking
+salted hashes is to use key stretching techniques~\cite{kelsey1998secure}. This
+involves performing multiple rounds of cryptographic operations to validate a
+hash (or key).  But key stretching incurs a slowdown for the attacker, 
+proportional to the number of iterations.  Unfortunately, it also slows the
+server down by the same factor, which limits the effectiveness of the 
+technique.
+
+\PPH leverages key stretching in two parts of the algorithm in a way
+that poses a much higher cost to the attacker than the server.  
+\PPH may also use key stretching during \partialverification.  This
+increases the authentication time only when bootstrapping, yet increases the time cost 
+to the attacker for all cracking efforts. When the server
+is in normal operation, there is no slowdown.  This presents an increase
+that is the same factor for the server and attacker, but the server only
+needs to pay the cost for a short period.  
+
+The more impactful use of key stretching is when \PPH performs an integrity 
+check on the secret before transitioning to normal operation.  This operation 
+is done only once per reboot by the server, yet the attacker must perform
+this operation once per guess of \thresholdaccount passwords.   This causes 
+an enormous, asymmetric increase in cracking time for the attacker.
+
+
+\eat{
+\PPH implements key stretching for \partialverification
+in order to slow down attackers who attempt to crack the isolated-check bits
+field. Yet,   \santiago{We can mention stretching on the
+secret verification hash}
+}
+
+\eat{
+\santiago{This doesn't seem to fit here}
+Using \partialverification, \PPH can process user authentications
+immediately, without the security risks associated with administrator shared
+keys. With \PPH, administrators do not need to share passwords or
+keys. Each administrator will have their own password; this allows access and
+system administration to go on even as administrators join and leave the
+organization. 
+}
