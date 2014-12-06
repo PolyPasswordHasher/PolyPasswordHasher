@@ -31,11 +31,44 @@
     <!-- MAIN CONTENT -->
     <div id="main_content_wrap" class="outer">
       <section id="main_content" class="inner">
-        <p>Password database disclosures have caused companies billions of dollars in damages. Typically a password server securely obtains a password from the user, performs a salted hash on the password, and then checks if that entry matches what is in the password database under that user name.   Hackers have proven adept at stealing password databases from <a href="https://isis.poly.edu/%7Ejcappos/papers/tr-cse-2013-02.pdf">dozens</a> <a href="http://www.zdnet.com/blog/security/pwnedlist-alerts-you-when-youve-been-hacked-for-a-price/10943">of</a> <a href="http://blog.passwordresearch.com/2013/02/passwords-found-in-wild-for-january-2013.html">companies</a>.  An attacker with the password database can try different passwords for a user and check if there is a match.</p>
+        <p>Password database disclosures have caused companies billions of
+        dollars in damages. Typically a password server securely obtains a
+        password from the user, performs a salted hash on the password, and
+        then checks if that entry matches what is in the password database
+        under that user name.   Hackers have proven adept at stealing password
+        databases from <a
+        href="https://isis.poly.edu/%7Ejcappos/papers/tr-cse-2013-02.pdf">dozens</a>
+    <a
+    href="http://www.zdnet.com/blog/security/pwnedlist-alerts-you-when-youve-been-hacked-for-a-price/10943">of</a>
+<a
+href="http://blog.passwordresearch.com/2013/02/passwords-found-in-wild-for-january-2013.html">companies</a>.
+An attacker with the password database can try different passwords for a user
+and check if there is a match.</p>
 
-<p>PolyPasswordHasher stores password data in a different way (<a href="https://github.com/PolyPasswordHasher/PolyPasswordHasher/blob/master/academic-writeup/paper.pdf">technical details</a>).   To understand the concept, imagine a flat piece of paper.   Instead of storing the salted password hash, PolyPasswordHasher combines this value with a point on the piece of paper.   All of the correct passwords when salted will produce points that lie on the same line.   (For the cryptographically knowledgeable reader, the actual construct used is a Shamir Secret Share instead of points in a multi-dimensional space.)   The information about this line is a secret that is not stored on disk.   When an attacker tries to crack passwords, they will simultaneously guess multiple passwords (the line), which makes it <a href="#hardtocompute">amazingly hard to crack passwords</a>.   </p>
+<p>PolyPasswordHasher stores password data in a different way (<a
+    href="https://github.com/PolyPasswordHasher/PolyPasswordHasher/blob/master/academic-writeup/paper.pdf">technical
+details</a>).   To understand the concept, imagine a flat piece of paper.
+Instead of storing the salted password hash, PolyPasswordHasher combines this
+value with a point on the piece of paper.   All of the correct passwords when
+salted will produce points that lie on the same line.   (For the
+cryptographically knowledgeable reader, the actual construct used is a Shamir
+Secret Share instead of points in a multi-dimensional space.)   The information
+about this line is a secret that is not stored on disk.   When an attacker
+tries to crack passwords, they will simultaneously guess multiple passwords
+(the line), which makes it <a href="#hardtocompute">amazingly hard to crack
+passwords</a>.   </p>
 
-<p>When the server restarts, it also needs to recompute the line.   However, through the normal login process, users provide many correct passwords and so the server finds the line without problems.   This technique is very efficient for the server to compute and requires very little additional storage or memory.   Better yet, client computers do not need to be changed in any way to use this.   There are free, open source <a href="#implementation">implementations available</a> for PolyPasswordHasher. So hopefully this technique will be coming to your favorite service to protect your password!</p>
+<p>When the server restarts, it also needs to recompute the line.   However,
+through the normal login process, users provide many correct passwords and so
+the server finds the line without problems.   This technique is very efficient
+for the server to compute and requires very little additional storage or
+memory; this is done only once by the server. For an attacker, however,
+recomputing a line must be done after each guess, making guessing really
+expensive. Better yet, client computers do not need to be changed in any way to
+use this.   There are free, open source <a
+href="#implementation">implementations available</a> for PolyPasswordHasher. So
+hopefully this technique will be coming to your favorite service to protect
+your password!</p>
 
 <h1>
 <a name="faq" class="anchor" href="#faq"><span class="octicon octicon-link"></span></a>FAQ</h1>
@@ -43,73 +76,156 @@
 <p><a name="hardtocompute"></a></p>
 
 <h4>
-<a name="how-hard-is-it-to-crack-passwords-stored-using-this-technique" class="anchor" href="#how-hard-is-it-to-crack-passwords-stored-using-this-technique"><span class="octicon octicon-link"></span></a>"How hard is it to crack passwords stored using this technique?"</h4>
+<a name="how-hard-is-it-to-crack-passwords-stored-using-this-technique"
+    class="anchor"
+href="#how-hard-is-it-to-crack-passwords-stored-using-this-technique"><span
+class="octicon octicon-link"></span></a>"How hard is it to crack passwords
+stored using this technique?"</h4>
 
-<p>Suppose that three people have passwords that are each randomly chosen and 6 characters long.   A typical laptop can crack those passwords in about 1 hour.   </p>
+<p>Suppose that three people have passwords that are each randomly chosen and 6
+characters long.   A typical laptop can crack those passwords in about 1 hour.
+</p>
 
-<p>If you take the same passwords and protect them with PolyPasswordHasher, every computer on the planet working together cannot crack the password in 1 hour.   In fact, to search the key space, it would take every computer on the planet <a href="https://github.com/PolyPasswordHasher/PolyPasswordHasher/blob/master/academic-writeup/paper.pdf">longer than the universe is estimated to have existed</a>.</p>
+<p>If you take the same passwords and protect them with PolyPasswordHasher,
+every computer on the planet working together cannot crack the password in 1
+hour.   In fact, to search the key space, it would take every computer on the
+planet <a
+href="https://github.com/PolyPasswordHasher/PolyPasswordHasher/blob/master/academic-writeup/paper.pdf">longer
+than the universe is estimated to have existed</a>.</p>
 
 <p><a name="thresholdless"></a></p>
 
 <h4>
-<a name="what-about-a-service-like-facebook-or-gmail-where-anyone-can-register-an-account" class="anchor" href="#what-about-a-service-like-facebook-or-gmail-where-anyone-can-register-an-account"><span class="octicon octicon-link"></span></a>"What about a service like Facebook or Gmail where anyone can register an account?"</h4>
+<a name="what-about-a-service-like-facebook-or-gmail-where-anyone-can-register-an-account"
+class="anchor"
+href="#what-about-a-service-like-facebook-or-gmail-where-anyone-can-register-an-account"><span
+class="octicon octicon-link"></span></a>"What about a service like Facebook or
+Gmail where anyone can register an account?"</h4>
 
-<p>It is possible to use accounts that contribute to the line (threshold accounts) as a key to encrypt other account credentials (thresholdless account).   So an attacker can know any number of those thresholdless accounts and cannot crack other thresholdless account or the threshold accounts.   </p>
+<p>It is possible to use accounts that contribute to the line (protector
+accounts) as a key to encrypt other account credentials (shielded
+account).   So an attacker can know any number of those shielded accounts
+and cannot crack other shielded account or the protector accounts.   </p>
 
 <p><a name="breakssystem"></a></p>
 
 <h4>
-<a name="what-if-an-attacker-figures-out-the-sensitive-information-line--shamir-secret-share" class="anchor" href="#what-if-an-attacker-figures-out-the-sensitive-information-line--shamir-secret-share"><span class="octicon octicon-link"></span></a>"What if an attacker figures out the sensitive information (line / Shamir Secret Share)?"</h4>
+<a
+    name="what-if-an-attacker-figures-out-the-sensitive-information-line--shamir-secret-share"
+class="anchor"
+href="#what-if-an-attacker-figures-out-the-sensitive-information-line--shamir-secret-share"><span
+class="octicon octicon-link"></span></a>"What if an attacker figures out the
+sensitive information (line / Shamir Secret Share)?"</h4>
 
-<p>This would require an attacker to be able to read memory from a running server.   While the communication between the client and server are typically encrypted, this only prevents an attacker on the network from eavesdropping on the password.   The server typically obtains the client's password in plain-text and then performs the salted hash.   So if an attacker can read memory on a running server, they can steal passwords regardless of how they are protected.</p>
+<p>This would require an attacker to be able to read memory from a running
+server.   While the communication between the client and server are typically
+encrypted, this only prevents an attacker on the network from eavesdropping on
+the password.   The server typically obtains the client's password in
+plain-text and then performs the salted hash.   So if an attacker can read
+memory on a running server, they can steal passwords regardless of how they are
+protected.</p>
 
-<p>However, even if an attacker can recover the line / Shamir Secret Share, the account passwords are still salted and hashed.   (Salting and hashing is the industry standard best practices for password protection today.)   So even if an attacker can read memory, stored accounts still have protection equal to the best case today.</p>
+<p>However, even if an attacker can recover the line / Shamir Secret Share, the
+account passwords are still salted and hashed.   (Salting and hashing is the
+industry standard best practices for password protection today.)   So even if
+an attacker can read memory, stored accounts still have protection equal to the
+best case today.</p>
 
-<p>Fortunately, most prior password database breaches did not result in the attacker gaining access to memory on a running server.  <a href="https://isis.poly.edu/%7Ejcappos/papers/tr-cse-2013-02.pdf">The most commonly disclosed cause of password database compromise is SQL injection</a>, which does not imply the attacker can read arbitrary memory.   So in many cases, an attacker that can steal the database does not have this access.</p>
+<p>Fortunately, most prior password database breaches did not result in the
+attacker gaining access to memory on a running server.  <a
+href="https://isis.poly.edu/%7Ejcappos/papers/tr-cse-2013-02.pdf">The most
+commonly disclosed cause of password database compromise is SQL injection</a>,
+which does not imply the attacker can read arbitrary memory.   So in many
+cases, an attacker that can steal the database does not have this access.</p>
 
 <p><a name="restart"></a></p>
 
 <h4>
-<a name="if-the-attacker-cant-check-individual-accounts-how-does-the-server-check-the-first-account-after-rebooting" class="anchor" href="#if-the-attacker-cant-check-individual-accounts-how-does-the-server-check-the-first-account-after-rebooting"><span class="octicon octicon-link"></span></a>"If the attacker can't check individual accounts, how does the server check the first account after rebooting?"</h4>
+<a name="if-the-attacker-cant-check-individual-accounts-how-does-the-server-check-the-first-account-after-rebooting"
+class="anchor"
+href="#if-the-attacker-cant-check-individual-accounts-how-does-the-server-check-the-first-account-after-rebooting"><span
+class="octicon octicon-link"></span></a>"If the attacker can't check individual
+accounts, how does the server check the first account after rebooting?"</h4>
 
-<p>The basic technique described here would require some number of users to provide correct login information before authorizing any of them.   However, <a href="https://github.com/PolyPasswordHasher/PolyPasswordHasher/blob/master/academic-writeup/paper.pdf">our paper</a> discusses an extension that gets around this issue.   You can leak a small amount of information about the password hashes to allow checking.   Using the example above, this is similar to leaking the last few digits of the points.   An attacker still has a huge number of things to guess, but the server can check and eliminate most wrong passwords right after reboot.</p>
+<p>The basic technique described here would require some number of users to
+provide correct login information before authorizing any of them.   However, <a
+href="https://github.com/PolyPasswordHasher/PolyPasswordHasher/blob/master/academic-writeup/paper.pdf">our
+paper</a> discusses an extension that gets around this issue.   You can leak a
+small amount of information about the password hashes to allow checking.
+Using the example above, this is similar to leaking the last few digits of the
+points.   An attacker still has a huge number of things to guess, but the
+server can check and eliminate most wrong passwords right after reboot.</p>
 
 <p><a name="weakpasswords"></a></p>
 
 <h4>
-<a name="does-this-mean-i-can-choose-very-weak-passwords-on-sites-that-use-polypasswordhasher" class="anchor" href="#does-this-mean-i-can-choose-very-weak-passwords-on-sites-that-use-polypasswordhasher"><span class="octicon octicon-link"></span></a>"Does this mean I can choose very weak passwords on sites that use PolyPasswordHasher?"</h4>
+<a name="does-this-mean-i-can-choose-very-weak-passwords-on-sites-that-use-polypasswordhasher"
+class="anchor"
+href="#does-this-mean-i-can-choose-very-weak-passwords-on-sites-that-use-polypasswordhasher"><span
+class="octicon octicon-link"></span></a>"Does this mean I can choose very weak
+passwords on sites that use PolyPasswordHasher?"</h4>
 
-<p>Extremely weak passwords are a bad idea.   An attacker can guess poor passwords and just try them even if they do not have the database.   So do not use them regardless of the storage technology.</p>
+<p>Extremely weak passwords are a bad idea.   An attacker can guess poor
+passwords and just try them even if they do not have the database.   So do not
+use them regardless of the storage technology.</p>
 
-<p>Another thing PolyPasswordHasher does not protect against is password reuse.   Do not use the same password on multiple sites no matter how strong it is!   We recommend using a <a href="https://lastpass.com">password</a> <a href="https://agilebits.com/onepassword">manager</a> that generates a separate, strong password per site.</p>
+<p>Another thing PolyPasswordHasher does not protect against is password reuse.
+Do not use the same password on multiple sites no matter how strong it is!   We
+recommend using a <a href="https://lastpass.com">password</a> <a
+href="https://agilebits.com/onepassword">manager</a> that generates a separate,
+strong password per site.</p>
 
 <p><a name="hashalg"></a></p>
 
 <h4>
-<a name="what-secure-hash-algorithm-does-polypasswordhasher-use" class="anchor" href="#what-secure-hash-algorithm-does-polypasswordhasher-use"><span class="octicon octicon-link"></span></a>"What secure hash algorithm does PolyPasswordHasher use?"</h4>
+<a name="what-secure-hash-algorithm-does-polypasswordhasher-use" class="anchor"
+    href="#what-secure-hash-algorithm-does-polypasswordhasher-use"><span
+class="octicon octicon-link"></span></a>"What secure hash algorithm does
+PolyPasswordHasher use?"</h4>
 
-<p>Any secure hashing algorithm can be used with PolyPasswordHasher.   The <a href="https://github.com/PolyPasswordHasher/PolyPasswordHasher/tree/master/python-reference-implementation">Python reference implementation</a> uses SHA256.</p>
+<p>Any secure hashing algorithm can be used with PolyPasswordHasher.   The <a
+    href="https://github.com/PolyPasswordHasher/PolyPasswordHasher/tree/master/python-reference-implementation">Python
+reference implementation</a> uses SHA256.</p>
 
 <p><a name="implementation"></a></p>
 
 <h4>
-<a name="where-can-i-get-an-implementation-of-polypasswordhasher" class="anchor" href="#where-can-i-get-an-implementation-of-polypasswordhasher"><span class="octicon octicon-link"></span></a>"Where can I get an implementation of PolyPasswordHasher?"</h4>
+<a name="where-can-i-get-an-implementation-of-polypasswordhasher"
+    class="anchor"
+href="#where-can-i-get-an-implementation-of-polypasswordhasher"><span
+class="octicon octicon-link"></span></a>"Where can I get an implementation of
+PolyPasswordHasher?"</h4>
 
-<p>There is a basic reference implementation for <a href="https://github.com/PolyPasswordHasher/PolyPasswordHasher/tree/master/python-reference-implementation">Python</a> that is written for readability. 
+<p>There is a basic reference implementation for <a
+    href="https://github.com/PolyPasswordHasher/PolyPasswordHasher/tree/master/python-reference-implementation">Python</a>
+that is written for readability. 
 There are also implementations in <a href="https://github.com/PolyPasswordHasher/PolyPasswordHasher-C">C</a> and <a href="https://github.com/PolyPasswordHasher/PolyPasswordHasher-Ruby">Ruby</a> available.</p>
 
-<p>We are currently testing a <a href="https://github.com/PolyPasswordHasher/PolyPasswordHasher-Django">Django implementation</a> that can be easily deployed.</p> 
+<p>We are currently testing a <a
+    href="https://github.com/PolyPasswordHasher/PolyPasswordHasher-Django">Django
+implementation</a> that can be easily deployed.</p> 
 
-<p>We would love to see a PHP implementation for common frameworks because many password hash breaches <a href="http://blog.passwordresearch.com/2013/02/passwords-found-in-wild-for-january-2013.html">occur on these systems</a>.</p>
+<p>We would love to see a PHP implementation for common frameworks because many
+password hash breaches <a
+href="http://blog.passwordresearch.com/2013/02/passwords-found-in-wild-for-january-2013.html">occur
+on these systems</a>.</p>
 
-<p>Please contact us if you have an implementation of PolyPasswordHasher that you would like us to list.</p>
+<p>Please contact us if you have an implementation of PolyPasswordHasher that
+you would like us to list.</p>
 
 <p><a name="moreinfo"></a></p>
 
 <h4>
-<a name="how-do-i-get-more-information-about-polypasswordhasher" class="anchor" href="#how-do-i-get-more-information-about-polypasswordhasher"><span class="octicon octicon-link"></span></a>"How do I get more information about PolyPasswordHasher?"</h4>
+<a name="how-do-i-get-more-information-about-polypasswordhasher" class="anchor"
+    href="#how-do-i-get-more-information-about-polypasswordhasher"><span
+class="octicon octicon-link"></span></a>"How do I get more information about
+PolyPasswordHasher?"</h4>
 
-<p><a href="https://github.com/PolyPasswordHasher/PolyPasswordHasher/blob/master/academic-writeup/paper.pdf">Our paper</a> should be a good starting point.   If you have a question that is not covered there, feel free to email <a href="mailto:polypasswordhasher-dev@googlegroups.com">our mailing list</a>.</p>
+<p><a
+    href="https://github.com/PolyPasswordHasher/PolyPasswordHasher/blob/master/academic-writeup/paper.pdf">Our
+paper</a> should be a good starting point.   If you have a question that is not
+covered there, feel free to email <a
+href="mailto:polypasswordhasher-dev@googlegroups.com">our mailing list</a>.</p>
       </section>
     </div>
 
