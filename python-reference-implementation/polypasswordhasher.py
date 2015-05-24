@@ -446,13 +446,13 @@ class PolyPasswordHasher(object):
 
     secret_hash = sha256(secret)
     for coefficient in self.shamirsecretobj._coefficients:
+        # For some reason, Lagrange Recombination pads with a 0 at the end of
+        # each coefficient, so I'll truncate to the size of the threshold (it
+        # seems to be consistent in that length).
         secret_hash.update(coefficient[:self.threshold])
 
     secret_digest = secret_hash.digest()
 
-    # For some reason, Lagrange Recombination pads with a 0 at the
-    # end of each coefficient, so I'll truncate to the size of the
-    # threshold (it seems to be consistent in that length).
     for i in range(1, verification_iterations):
         secret_digest = sha256(secret_digest).digest()
 
