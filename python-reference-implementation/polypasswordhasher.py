@@ -186,10 +186,10 @@ class PolyPasswordHasher(object):
 
 
   def create_account(self, username, password, shares):
-    """Create a new account.  Raises a ValueError if given bad data or if the
-       system isn't initialized"""
-
-
+    """
+      Create a new account.  Raises a ValueError if given bad data or if the
+      system isn't initialized
+    """
 
     if username in self.accountdict:
       raise ValueError("Username exists already!")
@@ -239,9 +239,6 @@ class PolyPasswordHasher(object):
       # Encrypt the salted secure hash.   The salt should make all entries
       # unique when encrypted.
       thisentry['passhash'] = AES.new(self.shieldedkey).encrypt(saltedpasswordhash)
-
-      # technically, I'm supposed to remove some of the prefix here, but why
-      # bother?
 
       # append the isolated validation data...
       thisentry['passhash'] += self.create_isolated_validation_bits(saltedpasswordhash)
