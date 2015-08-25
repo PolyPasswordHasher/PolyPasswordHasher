@@ -42,6 +42,7 @@ ol, ul {
 table {
   border-collapse: collapse;
   border-spacing: 0;
+  border: 0;
 }
 
 /*******************************************************************************
@@ -232,9 +233,10 @@ hr {
 }
 
 table {
-  border: 1px solid #373737;
+  border: none;
   margin-bottom: 20px;
   text-align: left;
+  width: 100%;
  }
 
 th {
@@ -246,7 +248,7 @@ th {
 
 td {
   padding: 10px;
-  border: 1px solid #373737;
+  border: none;
  }
 
 form {
