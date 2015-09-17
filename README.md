@@ -7,7 +7,7 @@ A Password storage scheme that prevents an attacker from cracking passwords indi
 Summary
 =======
 
-Password database disclousures have caused companies billions of dollars in
+Password database disclosures have caused companies billions of dollars in
 damages.   Typically a password server securely obtains a password from the
 user, performs a salted hash on the password, and then checks if that entry
 matches what is in the password database under that user name.   Hackers have
