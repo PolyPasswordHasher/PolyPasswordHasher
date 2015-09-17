@@ -1,7 +1,7 @@
 PolyPasswordHasher
 ============
 
-A Password storage scheme that prevents an attacker from cracking passwords individually.   
+A Password storage scheme that prevents an attacker from cracking passwords individually.
 
 
 Summary
@@ -28,7 +28,7 @@ reader, the actual construct used is a Shamir Secret Share instead of points in
 a multi-dimensional space.)   The information about this line is a secret that
 is not stored on disk.   When an attacker tries to crack passwords, they will
 simultaneously guess multiple passwords (the line), which makes it [amazingly
-hard to crack passwords](#hardtocompute).   
+hard to crack passwords](#hardtocompute).
 
 When the server restarts, it also needs to recompute the line.   However,
 through the normal login process, users provide many correct passwords and so
@@ -47,7 +47,7 @@ FAQ
 #### "How hard is it to crack passwords stored using this technique?"
 
 Suppose that three people have passwords that are each randomly chosen and 6
-characters long.   A typical laptop can crack those passwords in about 1 hour.   
+characters long.   A typical laptop can crack those passwords in about 1 hour.
 
 If you take the same passwords and protect them with PolyPasswordHasher, every
 computer on the planet working together cannot crack the password in 1 hour.
@@ -61,7 +61,7 @@ existed](https://github.com/PolyPasswordHasher/PolyPasswordHasher/blob/master/ac
 It is possible to use accounts that contribute to the line (threshold accounts)
 as a key to encrypt other account credentials (thresholdless account).   So an
 attacker can know any number of those thresholdless accounts and cannot crack
-other thresholdless account or the threshold accounts.   
+other thresholdless account or the threshold accounts.
 
 
 <a name="breakssystem"/>
@@ -97,6 +97,15 @@ amount of information about the password hashes to allow checking.   Using the
 example above, this is similar to leaking the last few digits of the points.
 An attacker still has a huge number of things to guess, but the server can
 check and eliminate most wrong passwords right after reboot.
+
+<a name="bootstrap_accounts"/>
+#### "Is it possible to create accounts before recovering the secret?"
+
+Another extension to the algorithm (discussed in the paper) allows for account
+creation before the "line" (secret) is recovered. These accounts will receive
+regular salted hashes for password verification until the secret is available.
+Once the secret is available, these accounts will be updated to their encrypted
+form.
 
 <a name="weakpasswords"/>
 #### "Does this mean I can choose very weak passwords on sites that use PolyPasswordHasher?"
