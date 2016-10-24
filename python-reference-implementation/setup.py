@@ -1,7 +1,7 @@
 #! /usr/bin/env python
 
 
-from distutils.core import setup, Extension
+from setuptools import setup, Extension
 
 import sys
 
@@ -23,5 +23,6 @@ setup(	name="PolyPasswordHasher",
     description="""An early version of PolyPasswordHasher.""",
     author="Justin Cappos",
     author_email="jcappos@poly.edu",
-    packages=["polypasswordhasher"]
+    packages=["polypasswordhasher"],
+    test_suite="test.runtests"
 )
