@@ -1,1 +1,1 @@
-pycrypto
+Install pycrypto to run the tests with python setup.py test.
